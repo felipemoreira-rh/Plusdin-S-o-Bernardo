@@ -21,40 +21,38 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
 .header{height:var(--header-h);background:white;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:50}
 .content{padding:28px}
 .card{background:white;border-radius:12px;border:1px solid var(--gray-200);padding:20px 24px;margin-bottom:24px}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:24px}
 .stat-card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:18px 20px}
 .stat-label{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px}
 .stat-value{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;margin:4px 0}
-.btn{padding:10px 18px;border-radius:8px;font-weight:600;cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
+.btn{padding:10px 18px;border-radius:8px;font-weight:600;cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition: 0.2s}
 .btn-primary{background:var(--orange);color:white}
 .btn-secondary{background:var(--gray-100);color:var(--gray-700)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.open{display:flex}
 .modal{background:white;border-radius:16px;padding:32px;width:550px;max-width:90vw;max-height:90vh;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
 .tabs{display:flex;gap:8px;border-bottom:1px solid var(--gray-200);margin-bottom:24px}
 .tab{padding:12px 16px;cursor:pointer;font-weight:600;font-size:13px;color:var(--gray-500);border-bottom:2px solid transparent}
 .tab.active{color:var(--orange);border-bottom-color:var(--orange)}
-.hidden{display:none}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:12px;background:var(--gray-50);font-size:11px;color:var(--gray-500);text-transform:uppercase}
 td{padding:12px;border-bottom:1px solid var(--gray-100);font-size:14px}
+#login-screen{position:fixed;inset:0;background:var(--gray-900);z-index:9999;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
-
 <body>
-<div id="login-screen" style="position:fixed;inset:0;background:var(--gray-900);z-index:9999;display:flex;align-items:center;justify-content:center">
-  <div style="background:white;padding:40px;border-radius:20px;width:400px;text-align:center">
+<div id="login-screen">
+  <div style="background:white;padding:40px;border-radius:20px;width:380px;text-align:center">
     <div class="logo-badge">PLUSDIN</div>
-    <h2 style="font-family:'Barlow Condensed';font-size:24px;margin-bottom:24px">Sistema de Gestão</h2>
-    <div style="text-align:left;margin-bottom:20px">
-      <label style="font-size:12px;font-weight:700;color:var(--gray-500)">SELECIONE SEU PERFIL</label>
-      <select id="login-role" style="width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid var(--gray-200)">
-        <option value="admin">🛡️ Administrador Geral</option>
-        <option value="administrativo">📋 Administrativo / Financeiro</option>
-        <option value="treinador">⚽ Treinador / Comissão Técnica</option>
-      </select>
-    </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Entrar no Sistema</button>
+    <h1 style="font-family:'Barlow Condensed';margin-bottom:20px">Acesso Restrito</h1>
+    <select id="login-role" style="width:100%;padding:12px;margin-bottom:20px;border-radius:8px;border:1px solid var(--gray-200)">
+        <option value="admin">Administrador</option>
+        <option value="treinador">Treinador</option>
+        <option value="administrativo">Administrativo</option>
+    </select>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
@@ -66,203 +64,166 @@ td{padding:12px;border-bottom:1px solid var(--gray-100);font-size:14px}
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="navigate('dashboard', this)">📊 Dashboard</div>
     <div class="nav-item" onclick="navigate('atletas', this)">⚽ Atletas</div>
-    <div class="nav-item admin-only" onclick="navigate('financeiro', this)">💳 Financeiro</div>
-    <div class="nav-item coach-only" onclick="navigate('chamadas', this)">✅ Chamadas</div>
+    <div class="nav-item" onclick="navigate('financeiro', this)">💳 Financeiro</div>
     <div class="nav-item" onclick="navigate('calendario', this)">📅 Calendário</div>
+    <div class="nav-item" onclick="navigate('chamadas', this)">✅ Chamadas</div>
   </nav>
 </div>
 
 <div class="main">
   <div class="header">
     <h1 id="page-title">Dashboard</h1>
-    <div style="margin-left:auto;display:flex;gap:12px">
-      <button class="btn btn-primary" onclick="openModal('modal-atleta')">+ Novo Atleta</button>
-    </div>
+    <div style="margin-left:auto"><button class="btn btn-primary" onclick="openModal('modal-atleta')">+ Novo Atleta</button></div>
   </div>
 
   <div class="content">
     <div id="page-dashboard" class="page active">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total de Atletas</div><div class="stat-value" id="stat-atletas">0</div></div>
-        <div class="stat-card"><div class="stat-label">Mensalidades em Dia</div><div class="stat-value" style="color:var(--green)">100%</div></div>
-        <div class="stat-card"><div class="stat-label">Presença Média</div><div class="stat-value" style="color:var(--blue)">--</div></div>
-        <div class="stat-card"><div class="stat-label">Próximos Jogos</div><div class="stat-value">0</div></div>
+        <div class="stat-card"><div class="stat-label">Total Atletas</div><div class="stat-value" id="count-atletas">0</div></div>
+        <div class="stat-card"><div class="stat-label">Mensalidades</div><div class="stat-value" style="color:var(--green)">R$ 0</div></div>
+        <div class="stat-card"><div class="stat-label">Presença</div><div class="stat-value" style="color:var(--blue)">0%</div></div>
       </div>
-      <div class="card">
-        <h3>Últimas Movimentações</h3>
-        <p style="color:var(--gray-500);margin-top:10px">Nenhum registro recente encontrado.</p>
-      </div>
+      <div class="card"><h3>Atividades Recentes</h3><p style="color:var(--gray-500)">Nenhuma atividade registrada.</p></div>
     </div>
 
-    <div id="page-atletas" class="page hidden">
+    <div id="page-atletas" class="page">
       <div class="card">
         <table>
-          <thead>
-            <tr><th>Atleta</th><th>Categoria</th><th>Posição</th><th>Status</th><th>Ações</th></tr>
-          </thead>
+          <thead><tr><th>Nome</th><th>Categoria</th><th>Posição</th><th>Ações</th></tr></thead>
           <tbody id="lista-atletas-body"></tbody>
         </table>
       </div>
     </div>
 
-    <div id="page-perfil" class="page hidden">
-      <button class="btn btn-secondary" onclick="navigate('atletas')" style="margin-bottom:20px">← Voltar para Lista</button>
-      <div class="card" style="padding:0;overflow:hidden">
-        <div style="padding:32px;background:linear-gradient(to right, #111827, #374151);color:white;display:flex;gap:24px;align-items:center">
-          <div id="p-avatar" style="width:100px;height:100px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800"></div>
-          <div>
-            <h2 id="p-nome" style="font-size:28px">Nome do Atleta</h2>
-            <p id="p-sub-info" style="opacity:0.8">Categoria • Posição</p>
-          </div>
-        </div>
-        <div class="tabs" style="padding:0 24px">
-          <div class="tab active" onclick="switchTab('p', 'dados', this)">DADOS</div>
-          <div class="tab" onclick="switchTab('p', 'saude', this)">SAÚDE</div>
-          <div class="tab" onclick="switchTab('p', 'testes', this)">TESTES FÍSICOS</div>
-          <div class="tab" onclick="switchTab('p', 'notas', this)">NOTAS TÉCNICAS</div>
-        </div>
-        <div id="p-dados" class="p-tab" style="padding:24px">
-           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-              <div><strong>Nascimento:</strong> <span id="p-nasc">--/--/----</span></div>
-              <div><strong>Responsável:</strong> <span id="p-resp">Não informado</span></div>
-           </div>
-        </div>
-        <div id="p-saude" class="p-tab hidden" style="padding:24px"><h4>Ficha Médica</h4><p>Nenhuma restrição cadastrada.</p></div>
-        <div id="p-testes" class="p-tab hidden" style="padding:24px"><h4>Histórico de Evolução</h4><p>Sem testes registrados.</p></div>
-        <div id="p-notas" class="p-tab hidden" style="padding:24px"><h4>Observações do Treinador</h4><p>Sem anotações.</p></div>
-      </div>
+    <div id="page-financeiro" class="page">
+        <div class="card"><h3>Gestão Financeira</h3><p>Lista de pagamentos e mensalidades.</p></div>
     </div>
 
-    <div id="page-financeiro" class="page hidden">
-        <div class="card"><h3>Gestão de Mensalidades</h3><p>Módulo em desenvolvimento para integração com pagamentos.</p></div>
+    <div id="page-calendario" class="page">
+        <div class="card"><h3>Calendário de Treinos e Jogos</h3><p>Agende eventos para a comissão técnica.</p></div>
+    </div>
+
+    <div id="page-chamadas" class="page">
+        <div class="card"><h3>Controle de Presença</h3><p>Selecione o atleta para marcar falta ou presença.</p></div>
+    </div>
+
+    <div id="page-perfil" class="page">
+        <button class="btn btn-secondary" onclick="navigate('atletas')" style="margin-bottom:20px">← Voltar</button>
+        <div class="card">
+            <h2 id="p-nome">Nome do Atleta</h2>
+            <div class="tabs">
+                <div class="tab active" onclick="switchProfileTab('dados', this)">DADOS</div>
+                <div class="tab" onclick="switchProfileTab('saude', this)">SAÚDE</div>
+                <div class="tab" onclick="switchProfileTab('testes', this)">TESTES</div>
+            </div>
+            <div id="tab-dados" class="prof-tab">Informações básicas de contrato e documentos.</div>
+            <div id="tab-saude" class="prof-tab" style="display:none">Ficha médica e histórico de lesões.</div>
+            <div id="tab-testes" class="prof-tab" style="display:none">Evolução física e técnica.</div>
+        </div>
     </div>
   </div>
 </div>
 
 <div id="modal-atleta" class="modal-overlay">
   <div class="modal">
-    <h2 style="font-family:'Barlow Condensed';margin-bottom:20px">Cadastrar Atleta</h2>
-    <div style="display:flex;flex-direction:column;gap:15px">
-      <input type="text" id="f-nome" placeholder="Nome Completo" style="padding:12px;border-radius:8px;border:1px solid var(--gray-200)">
-      <div style="display:flex;gap:10px">
-        <select id="f-cat" style="flex:1;padding:12px;border-radius:8px;border:1px solid var(--gray-200)">
-          <option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option>
-        </select>
-        <input type="text" id="f-pos" placeholder="Posição" style="flex:1;padding:12px;border-radius:8px;border:1px solid var(--gray-200)">
-      </div>
-      <input type="date" id="f-nasc" style="padding:12px;border-radius:8px;border:1px solid var(--gray-200)">
-      <div style="display:flex;gap:12px;margin-top:10px">
-        <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="closeModal('modal-atleta')">Cancelar</button>
-        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="salvarAtleta()">Salvar Atleta</button>
-      </div>
-    </div>
+    <h3>Novo Cadastro</h3><br>
+    <input type="text" id="f-nome" placeholder="Nome Completo" style="width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:1px solid var(--gray-200)">
+    <select id="f-cat" style="width:100%;padding:12px;margin-bottom:20px;border-radius:8px;border:1px solid var(--gray-200)">
+        <option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option>
+    </select>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="salvarAtleta()">Salvar Atleta</button>
   </div>
 </div>
-
-  <script>
-// BANCO DE DADOS LOCAL
-let db = JSON.parse(localStorage.getItem('plusdin_db_v3')) || { atletas: [] };
+<script>
+// BANCO DE DADOS
+let db = JSON.parse(localStorage.getItem('plusdin_final')) || { atletas: [] };
 
 function updateStorage() {
-  localStorage.setItem('plusdin_db_v3', JSON.stringify(db));
-  renderAtletas();
-  document.getElementById('stat-atletas').innerText = db.atletas.length;
+    localStorage.setItem('plusdin_final', JSON.stringify(db));
+    renderAtletas();
+    document.getElementById('count-atletas').innerText = db.atletas.length;
 }
 
-// LOGIN E PERMISSÕES
+// LOGIN
 function doLogin() {
-  const role = document.getElementById('login-role').value;
-  document.getElementById('login-screen').style.display = 'none';
-  
-  if(role === 'treinador') {
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-  } else if(role === 'administrativo') {
-    document.querySelectorAll('.coach-only').forEach(el => el.style.display = 'none');
-  }
+    document.getElementById('login-screen').style.display = 'none';
+    const role = document.getElementById('login-role').value;
+    // Ocultar menus se necessário (Lógica de permissão)
 }
 
-// NAVEGAÇÃO ENTRE PÁGINAS
+// NAVEGAÇÃO PRINCIPAL (CORREÇÃO DO ERRO NULL)
 function navigate(pageId, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-  document.getElementById('page-' + pageId).classList.remove('hidden');
-  document.getElementById('page-title').innerText = pageId.toUpperCase();
-  
-  if(el) {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    el.classList.add('active');
-  }
+    // 1. Esconder todas as páginas
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    
+    // 2. Mostrar a página desejada
+    const targetPage = document.getElementById('page-' + pageId);
+    if(targetPage) {
+        targetPage.classList.add('active');
+        document.getElementById('page-title').innerText = pageId.toUpperCase();
+    }
+
+    // 3. Atualizar menu lateral
+    if(el) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
 }
 
 // GESTÃO DE ATLETAS
 function salvarAtleta() {
-  const nome = document.getElementById('f-nome').value;
-  if(!nome) return alert("Por favor, digite o nome.");
-
-  const novoAtleta = {
-    id: Date.now(),
-    nome: nome,
-    cat: document.getElementById('f-cat').value,
-    pos: document.getElementById('f-pos').value,
-    nasc: document.getElementById('f-nasc').value || '--/--/----',
-    status: 'Ativo'
-  };
-
-  db.atletas.push(novoAtleta);
-  updateStorage();
-  closeModal('modal-atleta');
-  
-  // Limpar campos
-  document.getElementById('f-nome').value = '';
-  document.getElementById('f-pos').value = '';
+    const nome = document.getElementById('f-nome').value;
+    if(!nome) return alert("Digite o nome!");
+    
+    db.atletas.push({ id: Date.now(), nome, cat: document.getElementById('f-cat').value });
+    updateStorage();
+    closeModal('modal-atleta');
+    document.getElementById('f-nome').value = '';
 }
 
 function renderAtletas() {
-  const tbody = document.getElementById('lista-atletas-body');
-  tbody.innerHTML = db.atletas.map(a => `
-    <tr>
-      <td><strong>${a.nome}</strong></td>
-      <td>${a.cat}</td>
-      <td>${a.pos}</td>
-      <td><span class="logo-badge" style="background:var(--green-light);color:var(--green)">${a.status}</span></td>
-      <td>
-        <button class="btn btn-secondary" style="padding:5px 10px;font-size:12px" onclick="verPerfil(${a.id})">Ver Perfil</button>
-        <button onclick="removerAtleta(${a.id})" style="border:none;background:none;color:red;cursor:pointer;margin-left:10px">Excluir</button>
-      </td>
-    </tr>
-  `).join('');
+    const tbody = document.getElementById('lista-atletas-body');
+    tbody.innerHTML = db.atletas.map(a => `
+        <tr>
+            <td><strong>${a.nome}</strong></td>
+            <td>${a.cat}</td>
+            <td>Atacante</td>
+            <td>
+                <button class="btn btn-secondary" onclick="verPerfil(${a.id})">Perfil</button>
+                <button onclick="remover(${a.id})" style="color:red;border:none;background:none;margin-left:10px;cursor:pointer">Excluir</button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 function verPerfil(id) {
-  const a = db.atletas.find(x => x.id === id);
-  if(!a) return;
-
-  document.getElementById('p-nome').innerText = a.nome;
-  document.getElementById('p-sub-info').innerText = `${a.cat} • ${a.pos}`;
-  document.getElementById('p-avatar').innerText = a.nome.charAt(0).toUpperCase();
-  document.getElementById('p-nasc').innerText = a.nasc;
-  
-  navigate('perfil');
+    const a = db.atletas.find(x => x.id === id);
+    if(a) {
+        document.getElementById('p-nome').innerText = a.nome;
+        navigate('perfil');
+    }
 }
 
-function removerAtleta(id) {
-  if(confirm("Tem certeza que deseja remover este atleta?")) {
-    db.atletas = db.atletas.filter(a => a.id !== id);
-    updateStorage();
-  }
+function remover(id) {
+    if(confirm("Excluir atleta?")) {
+        db.atletas = db.atletas.filter(a => a.id !== id);
+        updateStorage();
+    }
 }
 
-// FUNÇÕES DE INTERFACE (ABAS E MODAIS)
-function switchTab(prefix, tab, el) {
-  document.querySelectorAll(`.${prefix}-tab`).forEach(t => t.classList.add('hidden'));
-  document.getElementById(`${prefix}-${tab}`).classList.remove('hidden');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+// ABAS INTERNAS DO PERFIL
+function switchProfileTab(tab, el) {
+    document.querySelectorAll('.prof-tab').forEach(t => t.style.display = 'none');
+    document.getElementById('tab-' + tab).style.display = 'block';
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
 }
 
+// AUXILIARES
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// INICIALIZAR
+// INICIAR
 updateStorage();
 </script>
 </body>
