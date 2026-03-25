@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plusdin SB — Sistema de Gestão Profissional</title>
+<title>Plusdin São Bernardo — Sistema de Gestão Profissional</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--orange:#F97316;--orange-light:#FFF7ED;--orange-dark:#EA580C;--green:#16A34A;--blue:#2563EB;--red:#DC2626;--gray-900:#111827;--sidebar-w:250px}
+:root{--orange:#F97316;--orange-light:#FFF7ED;--orange-dark:#EA580C;--green:#16A34A;--green-light:#F0FDF4;--blue:#2563EB;--blue-light:#EFF6FF;--red:#DC2626;--red-light:#FEF2F2;--gray-900:#111827;--gray-200:#E5E7EB;--sidebar-w:250px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Barlow',sans-serif;background:#F9FAFB;display:flex;min-height:100vh}
 .sidebar{width:var(--sidebar-w);background:var(--gray-900);color:white;position:fixed;height:100vh;z-index:100}
@@ -17,71 +17,32 @@ body{font-family:'Barlow',sans-serif;background:#F9FAFB;display:flex;min-height:
 .content{padding:30px}
 .card{background:white;border-radius:12px;border:1px solid #E5E7EB;padding:24px;margin-bottom:24px}
 .page{display:none} .page.active{display:block}
-.btn{padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px}
+.btn{padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;font-size:13px}
 .btn-primary{background:var(--orange);color:white}
 .btn-danger{background:var(--red);color:white}
 .btn-outline{border:1px solid #D1D5DB;background:white}
 .btn-sm{padding:5px 10px;font-size:12px}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:12px;background:#F3F4F6;font-size:12px;color:#6B7280;text-transform:uppercase}
+th{text-align:left;padding:12px;background:#F3F4F6;font-size:11px;color:#6B7280;text-transform:uppercase}
 td{padding:14px 12px;border-bottom:1px solid #F3F4F6;font-size:14px}
-.profile-header{background:var(--gray-900);color:white;padding:40px;border-radius:12px;display:flex;gap:30px;align-items:center;margin-bottom:20px}
-.profile-img{width:120px;height:120px;border-radius:50%;background:#374151;border:4px solid var(--orange);object-fit:cover;cursor:pointer}
+.profile-header{background:var(--gray-900);color:white;padding:30px;border-radius:12px;display:flex;gap:25px;align-items:center;margin-bottom:20px}
+.profile-img{width:100px;height:100px;border-radius:50%;background:#374151;border:3px solid var(--orange);object-fit:cover;cursor:pointer}
 .tabs{display:flex;gap:20px;border-bottom:1px solid #E5E7EB;margin-bottom:20px}
 .tab{padding:10px 0;cursor:pointer;font-weight:600;color:#6B7280;border-bottom:2px solid transparent}
 .tab.active{color:var(--orange);border-bottom-color:var(--orange)}
-input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #D1D5DB;margin-top:5px}
+input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #D1D5DB;margin-top:5px;font-family:inherit}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.open{display:flex}
-.modal{background:white;border-radius:16px;padding:32px;width:600px;max-height:90vh;overflow-y:auto}
-.badge{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700}
-</style>
-</head>
-
-    <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plusdin SB — Sistema de Gestão Profissional</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--orange:#F97316;--orange-light:#FFF7ED;--orange-dark:#EA580C;--green:#16A34A;--blue:#2563EB;--red:#DC2626;--gray-900:#111827;--sidebar-w:250px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:#F9FAFB;display:flex;min-height:100vh}
-.sidebar{width:var(--sidebar-w);background:var(--gray-900);color:white;position:fixed;height:100vh;z-index:100}
-.nav-item{padding:12px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;color:#9CA3AF;transition:0.2s}
-.nav-item.active, .nav-item:hover{background:rgba(249,115,22,0.15);color:white;border-left:4px solid var(--orange)}
-.main{margin-left:var(--sidebar-w);flex:1;width:calc(100% - var(--sidebar-w))}
-.header{height:70px;background:white;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;padding:0 30px;justify-content:space-between}
-.content{padding:30px}
-.card{background:white;border-radius:12px;border:1px solid #E5E7EB;padding:24px;margin-bottom:24px}
-.page{display:none} .page.active{display:block}
-.btn{padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px}
-.btn-primary{background:var(--orange);color:white}
-.btn-danger{background:var(--red);color:white}
-.btn-outline{border:1px solid #D1D5DB;background:white}
-.btn-sm{padding:5px 10px;font-size:12px}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:12px;background:#F3F4F6;font-size:12px;color:#6B7280;text-transform:uppercase}
-td{padding:14px 12px;border-bottom:1px solid #F3F4F6;font-size:14px}
-.profile-header{background:var(--gray-900);color:white;padding:40px;border-radius:12px;display:flex;gap:30px;align-items:center;margin-bottom:20px}
-.profile-img{width:120px;height:120px;border-radius:50%;background:#374151;border:4px solid var(--orange);object-fit:cover;cursor:pointer}
-.tabs{display:flex;gap:20px;border-bottom:1px solid #E5E7EB;margin-bottom:20px}
-.tab{padding:10px 0;cursor:pointer;font-weight:600;color:#6B7280;border-bottom:2px solid transparent}
-.tab.active{color:var(--orange);border-bottom-color:var(--orange)}
-input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #D1D5DB;margin-top:5px}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal-overlay.open{display:flex}
-.modal{background:white;border-radius:16px;padding:32px;width:600px;max-height:90vh;overflow-y:auto}
+.modal{background:white;border-radius:16px;padding:32px;width:550px;max-height:90vh;overflow-y:auto}
 .badge{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700}
 </style>
 </head>
 <body>
+
 <div id="login-screen" style="position:fixed;inset:0;background:var(--gray-900);z-index:9999;display:flex;align-items:center;justify-content:center">
   <div style="background:white;padding:40px;border-radius:20px;width:400px;text-align:center">
     <h2 style="font-family:'Barlow Condensed';margin-bottom:20px">PLUSDIN SB LOGIN</h2>
-    <input type="email" id="login-email" placeholder="E-mail de acesso">
+    <input type="email" id="login-email" placeholder="E-mail de acesso" value="admin@plusdin.com.br">
     <select id="login-role" style="margin-top:15px">
         <option value="Administrador">Administrador</option>
         <option value="Administrativo">Administrativo</option>
@@ -94,13 +55,13 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
 <div class="sidebar">
     <div style="padding:25px;border-bottom:1px solid #374151"><h2 style="color:var(--orange)">PLUSDIN SB</h2></div>
     <nav class="sidebar-nav">
-        <div class="nav-item active" onclick="navigate('dashboard', this)">📊 Dashboard</div>
-        <div class="nav-item access-atleta" onclick="navigate('atletas', this)">⚽ Atletas</div>
-        <div class="nav-item access-comissao" onclick="navigate('comissao', this)">👨‍🏫 Comissão Técnica</div>
-        <div class="nav-item access-financeiro" onclick="navigate('financeiro', this)">💳 Financeiro</div>
-        <div class="nav-item access-movimentacao" onclick="navigate('movimentacoes', this)">🔄 Movimentações</div>
-        <div class="nav-item access-calendario" onclick="navigate('calendario', this)">📅 Calendário</div>
-        <div class="nav-item access-config" onclick="navigate('configuracoes', this)">⚙️ Configurações</div>
+        <div class="nav-item" onclick="navigate('dashboard', this)">📊 Dashboard</div>
+        <div class="nav-item" onclick="navigate('atletas', this)">⚽ Atletas</div>
+        <div class="nav-item" onclick="navigate('comissao', this)">👥 Comissão Técnica</div>
+        <div class="nav-item" onclick="navigate('financeiro', this)">💳 Financeiro</div>
+        <div class="nav-item" onclick="navigate('movimentacoes', this)">🔄 Movimentações</div>
+        <div class="nav-item" onclick="navigate('calendario', this)">📅 Calendário</div>
+        <div class="nav-item" onclick="navigate('configuracoes', this)">⚙️ Configurações</div>
     </nav>
 </div>
 
@@ -111,10 +72,17 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
     </div>
 
     <div class="content">
+        <div id="page-dashboard" class="page active">
+            <div class="card">
+                <h3>Resumo do Sistema</h3>
+                <p>Bem-vindo ao sistema de gestão Plusdin São Bernardo.</p>
+            </div>
+        </div>
+
         <div id="page-atletas" class="page">
             <div class="card">
                 <div style="display:flex;justify-content:space-between;margin-bottom:20px">
-                    <input type="text" placeholder="Buscar atleta..." style="width:300px">
+                    <input type="text" placeholder="Buscar atleta..." style="width:300px" id="search-atleta" oninput="renderAtletas()">
                     <button class="btn btn-primary" onclick="openModal('modal-atleta')">+ Novo Atleta</button>
                 </div>
                 <table>
@@ -125,7 +93,7 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
         </div>
 
         <div id="page-perfil" class="page">
-            <button class="btn btn-outline" onclick="navigate('atletas')" style="margin-bottom:20px">← Voltar</button>
+            <button class="btn btn-outline btn-sm mb-4" onclick="navigate('atletas')" style="margin-bottom:15px">← Voltar</button>
             <div class="profile-header">
                 <label for="upload-foto">
                     <img id="p-foto" src="" class="profile-img" title="Clique para mudar a foto">
@@ -133,30 +101,47 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
                 <input type="file" id="upload-foto" style="display:none" onchange="uploadFoto(this)">
                 <div>
                     <h1 id="p-nome">Nome do Atleta</h1>
-                    <p id="p-sub">Sub 15 • Atacante</p>
+                    <p id="p-sub">Categoria • Posição</p>
                 </div>
             </div>
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('perfil','saude',this)">🏥 SAÚDE</div>
-                <div class="tab" onclick="switchTab('perfil','testes',this)">⚖️ TESTES FÍSICOS</div>
-                <div class="tab" onclick="switchTab('perfil','docs',this)">📁 DOCUMENTOS</div>
+                <div class="tab active" onclick="switchProfileTab('saude',this)">🏥 SAÚDE</div>
+                <div class="tab" onclick="switchProfileTab('testes',this)">⚖️ TESTES FÍSICOS</div>
+                <div class="tab" onclick="switchProfileTab('docs',this)">📁 DOCUMENTOS</div>
             </div>
-            <div id="perfil-saude" class="tab-content card">
+            <div id="perfil-saude" class="profile-tab-content card">
                 <h3>Informações Médicas</h3>
                 <textarea id="p-saude-txt" style="height:150px" placeholder="Alergias, medicamentos, cirurgias..."></textarea>
-                <button class="btn btn-primary" onclick="salvarSaude()" style="margin-top:10px">Salvar Ficha Médica</button>
+                <button class="btn btn-primary" onclick="salvarSaudeAtleta()" style="margin-top:10px">Salvar Ficha Médica</button>
             </div>
-            <div id="perfil-testes" class="tab-content card" style="display:none">
+            <div id="perfil-testes" class="profile-tab-content card" style="display:none">
                 <h3>Acompanhamento de Testes</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:20px">
-                    <input type="text" id="t-peso" placeholder="Peso (kg)">
-                    <input type="text" id="t-altura" placeholder="Altura (m)">
-                    <input type="text" id="t-velocidade" placeholder="Velocidade">
-                    <button class="btn btn-primary" onclick="addTeste()">Gravar Teste</button>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-bottom:20px;align-items:end">
+                    <div class="form-group"><label>Peso (kg)</label><input type="text" id="t-peso"></div>
+                    <div class="form-group"><label>Altura (m)</label><input type="text" id="t-altura"></div>
+                    <div class="form-group"><label>Velocidade</label><input type="text" id="t-velocidade"></div>
+                    <button class="btn btn-primary" onclick="addTesteAtleta()">Gravar</button>
                 </div>
                 <table>
-                    <thead><tr><th>Data</th><th>Peso</th><th>Altura</th><th>Obs</th></tr></thead>
+                    <thead><tr><th>Data</th><th>Peso</th><th>Altura</th><th>Velocidade</th></tr></thead>
                     <tbody id="lista-testes"></tbody>
+                </table>
+            </div>
+            <div id="perfil-docs" class="profile-tab-content card" style="display:none">
+                <h3>Documentos do Atleta</h3>
+                <p>Nenhum documento anexado.</p>
+            </div>
+        </div>
+
+        <div id="page-comissao" class="page">
+            <div class="card">
+                <div class="flex-between">
+                    <h3>Membros da Comissão e Diretoria</h3>
+                    <button class="btn btn-primary">+ Novo Membro</button>
+                </div>
+                <table style="margin-top:20px">
+                    <thead><tr><th>Foto</th><th>Nome</th><th>Cargo</th><th>Ações</th></tr></thead>
+                    <tbody id="lista-comissao"></tbody>
                 </table>
             </div>
         </div>
@@ -164,10 +149,18 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
         <div id="page-financeiro" class="page">
             <div class="card">
                 <h3>Solicitar Pagamento</h3>
-                <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end">
-                    <input type="text" id="f-desc" placeholder="Ex: Van para Campinas">
-                    <input type="number" id="f-valor" placeholder="R$ 0,00">
-                    <select id="f-cat"><option>Transporte</option><option>Alimentação</option><option>Comissão</option></select>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:10px">
+                    <input type="text" id="f-desc" placeholder="Descrição da despesa">
+                    <input type="number" id="f-valor" placeholder="Valor R$">
+                    <select id="f-cat">
+                        <option>Pagamento mensal</option>
+                        <option>Inscrição em campeonato</option>
+                        <option>Taxa de arbitragem</option>
+                        <option>Marcação de campo</option>
+                        <option>DARF</option>
+                        <option>Aluguel do campo</option>
+                        <option>Outros</option>
+                    </select>
                     <button class="btn btn-primary" onclick="solicitarPagamento()">Solicitar</button>
                 </div>
             </div>
@@ -179,23 +172,12 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
             </div>
         </div>
 
-        <div id="page-configuracoes" class="page">
-            <div class="card">
-                <h3>Gestão de Acessos (Apenas Admin)</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:15px">
-                    <input type="email" id="c-email" placeholder="E-mail do usuário">
-                    <select id="c-role"><option>Administrador</option><option>Administrativo</option><option>Treinador</option></select>
-                    <button class="btn btn-primary" onclick="addAcesso()">Criar Acesso</button>
-                </div>
-            </div>
-        </div>
-        
         <div id="page-movimentacoes" class="page">
             <div class="card">
-                <h3>Registro de Movimentação</h3>
+                <h3>Nova Movimentação</h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:15px">
-                    <select id="m-atleta"></select>
-                    <select id="m-tipo">
+                    <select id="m-atleta-sel"></select>
+                    <select id="m-status-sel">
                         <option>Interesse</option><option>Em Teste</option>
                         <option>Aprovado</option><option>Reprovado</option>
                     </select>
@@ -209,73 +191,103 @@ input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px sol
                 </table>
             </div>
         </div>
+
+        <div id="page-calendario" class="page">
+            <div class="card">
+                <h3>Calendário de Atividades</h3>
+                <p>Cronograma do mês carregando...</p>
+            </div>
+        </div>
+
+        <div id="page-configuracoes" class="page">
+            <div class="card">
+                <h3>Gestão de Acessos</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:15px">
+                    <input type="email" id="c-email" placeholder="E-mail do usuário">
+                    <select id="c-role"><option>Administrador</option><option>Administrativo</option><option>Treinador</option></select>
+                    <button class="btn btn-primary" onclick="addAcesso()">Criar Acesso</button>
+                </div>
+                <table style="margin-top:20px">
+                    <thead><tr><th>E-mail</th><th>Nível</th><th>Ações</th></tr></thead>
+                    <tbody id="lista-acessos"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <div id="modal-atleta" class="modal-overlay">
     <div class="modal">
         <h3>Cadastrar Novo Atleta</h3><br>
-        <input type="text" id="n-nome" placeholder="Nome Completo">
-        <div style="display:flex;gap:10px">
-            <select id="n-cat" style="flex:1"><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option></select>
-            <input type="text" id="n-pos" placeholder="Posição" style="flex:1">
+        <div class="form-group"><label>Nome Completo</label><input type="text" id="n-nome"></div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="form-group" style="flex:1"><label>Categoria</label><select id="n-cat"><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option></select></div>
+            <div class="form-group" style="flex:1"><label>Posição</label><input type="text" id="n-pos"></div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:20px">
+        <div style="display:flex;gap:10px;margin-top:25px">
             <button class="btn btn-outline" style="flex:1" onclick="closeModal('modal-atleta')">Cancelar</button>
-            <button class="btn btn-primary" style="flex:1" onclick="salvarNovoAtleta()">Gravar</button>
+            <button class="btn btn-primary" style="flex:1" onclick="salvarNovoAtleta()">Gravar Atleta</button>
         </div>
     </div>
 </div>
-    <script>
-let db = JSON.parse(localStorage.getItem('plusdin_v4')) || {
-    atletas: [], financeiro: [], acessos: [{email: 'admin@plusdin.com', role: 'Administrador'}],
-    movimentacoes: [], comissao: []
+
+<script>
+// BASE DE DADOS INTEGRADA
+let db = JSON.parse(localStorage.getItem('plusdin_v5')) || {
+    atletas: [], 
+    financeiro: [], 
+    acessos: [{email: 'admin@plusdin.com.br', role: 'Administrador'}],
+    movimentacoes: [], 
+    comissao: []
 };
+
 let currentUser = null;
 let atletaAtivoId = null;
 
 function save() { 
-    localStorage.setItem('plusdin_v4', JSON.stringify(db)); 
+    localStorage.setItem('plusdin_v5', JSON.stringify(db)); 
     renderAll();
 }
 
+// NAVEGAÇÃO E LOGIN
 function doLogin() {
     const email = document.getElementById('login-email').value;
     const role = document.getElementById('login-role').value;
-    
-    if(!email) return alert("Digite seu e-mail");
+    if(!email) return alert("Digite o e-mail");
     
     currentUser = { email, role };
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('user-info').innerText = `${email} (${role})`;
-    applyPermissions(role);
-    navigate('dashboard');
-}
-
-function applyPermissions(role) {
-    const hide = (sel) => document.querySelectorAll(sel).forEach(e => e.style.display = 'none');
     
-    if(role === 'Treinador') {
-        hide('.access-financeiro, .access-calendario, .access-config');
-    } else if(role === 'Administrativo') {
-        hide('.access-config');
-    }
+    // Restrição de abas
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const text = item.innerText.toLowerCase();
+        if(role === 'Treinador' && (text.includes('financeiro') || text.includes('calendário') || text.includes('configurações'))) {
+            item.style.display = 'none';
+        }
+        if(role === 'Administrativo' && text.includes('configurações')) {
+            item.style.display = 'none';
+        }
+    });
+
+    navigate('dashboard', document.querySelector('.nav-item'));
 }
 
 function navigate(pageId, el) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + pageId).classList.add('active');
-    document.getElementById('page-title').innerText = pageId.toUpperCase();
+    document.getElementById('page-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+    
     if(el) {
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
     }
 }
 
-// GESTÃO DE ATLETAS
+// LÓGICA DE ATLETAS
 function salvarNovoAtleta() {
     const nome = document.getElementById('n-nome').value;
-    if(!nome) return;
+    if(!nome) return alert("Preencha o nome");
     const novo = {
         id: Date.now(),
         nome,
@@ -286,24 +298,14 @@ function salvarNovoAtleta() {
     db.atletas.push(novo);
     save();
     closeModal('modal-atleta');
+    document.getElementById('n-nome').value = '';
 }
 
-function renderAtletas() {
-    document.getElementById('lista-atletas').innerHTML = db.atletas.map(a => `
-        <tr>
-            <td><img src="${a.foto || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"></td>
-            <td><strong>${a.nome}</strong></td>
-            <td>${a.cat}</td>
-            <td><span class="badge" style="background:var(--green-light);color:var(--green)">${a.status}</span></td>
-            <td>
-                <button class="btn btn-sm btn-outline" onclick="abrirPerfil(${a.id})">👁️ Ver Perfil</button>
-                <button class="btn btn-sm btn-danger" onclick="excluirAtleta(${a.id})">🗑️</button>
-            </td>
-        </tr>
-    `).join('');
-    
-    // Atualiza select de movimentação
-    document.getElementById('m-atleta').innerHTML = db.atletas.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+function excluirAtleta(id) {
+    if(confirm("Tem certeza que deseja excluir este atleta?")) {
+        db.atletas = db.atletas.filter(a => a.id !== id);
+        save();
+    }
 }
 
 function abrirPerfil(id) {
@@ -311,10 +313,30 @@ function abrirPerfil(id) {
     const a = db.atletas.find(x => x.id === id);
     document.getElementById('p-nome').innerText = a.nome;
     document.getElementById('p-sub').innerText = `${a.cat} • ${a.pos}`;
-    document.getElementById('p-foto').src = a.foto || 'https://via.placeholder.com/120';
+    document.getElementById('p-foto').src = a.foto || 'https://via.placeholder.com/100';
     document.getElementById('p-saude-txt').value = a.saude || '';
-    renderTestes();
+    renderTestesAtleta();
     navigate('perfil');
+}
+
+function salvarSaudeAtleta() {
+    const a = db.atletas.find(x => x.id === atletaAtivoId);
+    a.saude = document.getElementById('p-saude-txt').value;
+    save();
+    alert("Informações de saúde salvas!");
+}
+
+function addTesteAtleta() {
+    const a = db.atletas.find(x => x.id === atletaAtivoId);
+    const teste = {
+        data: new Date().toLocaleDateString(),
+        peso: document.getElementById('t-peso').value,
+        altura: document.getElementById('t-altura').value,
+        vel: document.getElementById('t-velocidade').value
+    };
+    a.testes.push(teste);
+    save();
+    renderTestesAtleta();
 }
 
 function uploadFoto(input) {
@@ -328,21 +350,19 @@ function uploadFoto(input) {
     };
     reader.readAsDataURL(file);
 }
-</script>
-    <script>
-// FINANCEIRO COM APROVAÇÃO
+
+// FINANCEIRO E MOVIMENTAÇÕES
 function solicitarPagamento() {
     const desc = document.getElementById('f-desc').value;
     const valor = document.getElementById('f-valor').value;
-    if(!desc || !valor) return;
+    if(!desc || !valor) return alert("Preencha todos os campos");
 
     db.financeiro.push({
         id: Date.now(),
         data: new Date().toLocaleDateString(),
         desc, valor: parseFloat(valor),
         cat: document.getElementById('f-cat').value,
-        status: 'Aguardando Aprovação',
-        solicitante: currentUser.email
+        status: 'Aguardando Aprovação'
     });
     save();
 }
@@ -350,81 +370,114 @@ function solicitarPagamento() {
 function aprovarPagamento(id) {
     const p = db.financeiro.find(x => x.id === id);
     p.status = 'Aprovado';
-    
-    // Simulação de e-mail conforme solicitado
-    console.log(`ENVIANDO EMAIL PARA FINANCEIRO...
-    Detalhes: ${p.desc} - R$ ${p.valor}
-    DADOS PARA PAGAMENTO:
-    Chave pix: 55190472000146 
-    Favorecido: Plusdin São Bernardo`);
-    
-    alert("Pagamento Aprovado! E-mail disparado para o setor financeiro.");
+    alert(`Pagamento Aprovado!\n\nDados para transferência:\nChave pix: 55190472000146\nFavorecido: Plusdin São Bernardo`);
     save();
 }
 
-// MOVIMENTAÇÕES
 function registrarMov() {
-    const idA = document.getElementById('m-atleta').value;
+    const idA = document.getElementById('m-atleta-sel').value;
     const atleta = db.atletas.find(x => x.id == idA);
-    const tipo = document.getElementById('m-tipo').value;
-    
     db.movimentacoes.push({
         id: Date.now(),
         atleta: atleta.nome,
-        status: tipo,
+        status: document.getElementById('m-status-sel').value,
         data: new Date().toLocaleString()
     });
     save();
 }
 
+function excluirMov(id) {
+    db.movimentacoes = db.movimentacoes.filter(m => m.id !== id);
+    save();
+}
+
+function atualizarStatusMov(id, novoStatus) {
+    const mov = db.movimentacoes.find(m => m.id === id);
+    mov.status = novoStatus;
+    save();
+}
+
+// GESTÃO DE ACESSOS
+function addAcesso() {
+    const email = document.getElementById('c-email').value;
+    const role = document.getElementById('c-role').value;
+    if(!email) return;
+    db.acessos.push({email, role});
+    save();
+}
+
+// RENDERS
 function renderAll() {
     renderAtletas();
     
-    // Render Financeiro
+    // Financeiro
     document.getElementById('lista-financeiro').innerHTML = db.financeiro.map(f => `
         <tr>
             <td>${f.data}</td>
-            <td>${f.desc}</td>
+            <td>${f.desc}<br><small style="color:var(--gray-500)">${f.cat}</small></td>
             <td>R$ ${f.valor.toFixed(2)}</td>
-            <td><span class="badge" style="background:#FEF3C7;color:#92400E">${f.status}</span></td>
+            <td><span class="badge ${f.status==='Aprovado'?'badge-green':'badge-yellow'}">${f.status}</span></td>
             <td>
-                ${f.status === 'Aguardando Aprovação' && currentUser.role === 'Administrador' ? 
+                ${f.status !== 'Aprovado' && currentUser.role === 'Administrador' ? 
                 `<button class="btn btn-sm btn-primary" onclick="aprovarPagamento(${f.id})">Aprovar</button>` : ''}
             </td>
         </tr>
     `).join('');
 
-    // Render Movimentações
+    // Movimentações
     document.getElementById('lista-mov').innerHTML = db.movimentacoes.map(m => `
         <tr>
             <td>${m.data}</td>
             <td>${m.atleta}</td>
-            <td><span class="badge" style="background:var(--blue-light);color:var(--blue)">${m.status}</span></td>
-            <td><button class="btn btn-sm" onclick="excluirMov(${m.id})">🗑️</button></td>
+            <td>
+                <select onchange="atualizarStatusMov(${m.id}, this.value)" style="margin:0; padding:4px">
+                    <option ${m.status==='Interesse'?'selected':''}>Interesse</option>
+                    <option ${m.status==='Em Teste'?'selected':''}>Em Teste</option>
+                    <option ${m.status==='Aprovado'?'selected':''}>Aprovado</option>
+                    <option ${m.status==='Reprovado'?'selected':''}>Reprovado</option>
+                </select>
+            </td>
+            <td><button class="btn btn-sm btn-danger" onclick="excluirMov(${m.id})">🗑️</button></td>
+        </tr>
+    `).join('');
+
+    // Acessos
+    document.getElementById('lista-acessos').innerHTML = db.acessos.map(a => `
+        <tr><td>${a.email}</td><td>${a.role}</td><td><button class="btn btn-sm btn-danger">🗑️</button></td></tr>
+    `).join('');
+
+    // Selects
+    document.getElementById('m-atleta-sel').innerHTML = db.atletas.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+}
+
+function renderAtletas() {
+    const busca = document.getElementById('search-atleta').value.toLowerCase();
+    const filtrados = db.atletas.filter(a => a.nome.toLowerCase().includes(busca));
+    
+    document.getElementById('lista-atletas').innerHTML = filtrados.map(a => `
+        <tr>
+            <td><img src="${a.foto || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"></td>
+            <td><strong>${a.nome}</strong></td>
+            <td>${a.cat}</td>
+            <td><span class="badge badge-green">${a.status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="abrirPerfil(${a.id})">👁️ Perfil</button>
+                <button class="btn btn-sm btn-danger" onclick="excluirAtleta(${a.id})">🗑️</button>
+            </td>
         </tr>
     `).join('');
 }
 
-function renderTestes() {
+function renderTestesAtleta() {
     const a = db.atletas.find(x => x.id === atletaAtivoId);
     document.getElementById('lista-testes').innerHTML = (a.testes || []).map(t => `
-        <tr><td>${t.data}</td><td>${t.peso}kg</td><td>${t.altura}m</td><td>-</td></tr>
+        <tr><td>${t.data}</td><td>${t.peso}kg</td><td>${t.altura}m</td><td>${t.vel}</td></tr>
     `).join('');
 }
 
-function addTeste() {
-    const a = db.atletas.find(x => x.id === atletaAtivoId);
-    a.testes.push({
-        data: new Date().toLocaleDateString(),
-        peso: document.getElementById('t-peso').value,
-        altura: document.getElementById('t-altura').value
-    });
-    save();
-}
-
-function switchTab(pref, tab, el) {
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    document.getElementById(pref + '-' + tab).style.display = 'block';
+function switchProfileTab(tab, el) {
+    document.querySelectorAll('.profile-tab-content').forEach(c => c.style.display = 'none');
+    document.getElementById('perfil-' + tab).style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
 }
@@ -436,4 +489,3 @@ renderAll();
 </script>
 </body>
 </html>
-    
