@@ -1476,3 +1476,9 @@ document.addEventListener('DOMContentLoaded',()=>{updateAccessPreview&&updateAcc
 </script>
 </body>
 </html>
+<script>
+  // força o sistema iniciar direto
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("login-screen")?.remove()
+  })
+</script>
