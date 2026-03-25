@@ -1489,19 +1489,81 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('open');}));
 
 // ===== TABS =====
-function switchTab(prefix,tab,el){
-  document.querySelectorAll(`#${prefix}-tabs .tab`).forEa
-<script>
-// ===== AUTO-LOGIN TEMPORÁRIO — acesso direto como Administrador =====
-window.addEventListener('load', function() {
-  // Esconder tela de login se ainda visível
-  var ls = document.getElementById('login-screen');
-  if (ls) ls.style.display = 'none';
+// ===== TABS (Ajustadas) =====
+function switchTab(prefix, tab, el) {
+  const container = el.closest('.card-body') || document;
+  container.querySelectorAll(`#${prefix}-tabs .tab`).forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  container.querySelectorAll(`.${prefix}-tab`).forEach(t => t.style.display = 'none');
+  const t = document.getElementById(`${prefix}-${tab}`);
+  if (t) t.style.display = 'block';
+}
 
-  // Definir perfil como admin
-  if (typeof currentRole !== 'undefined') {
-    currentRole = 'admin';
+// ===== NAVEGAÇÃO PRINCIPAL (ABAS DO MENU) =====
+function navigate(pageId, element) {
+  // 1. Esconde todas as páginas
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+
+  // 2. Mostra a página desejada
+  const targetPage = document.getElementById('page-' + pageId);
+  if (targetPage) {
+    targetPage.style.display = 'block';
+    targetPage.classList.add('active');
   }
+
+  // 3. Atualiza o título no topo
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = pageId.toUpperCase();
+
+  // 4. Atualiza o visual do menu lateral
+  document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+  if (element) {
+    element.classList.add('active');
+  } else {
+    const menuIcon = document.querySelector(`[data-page="${pageId}"]`);
+    if (menuIcon) menuIcon.classList.add('active');
+  }
+
+  // Lógicas específicas ao abrir a página
+  if (pageId === 'chamada') renderChamada();
+}
+
+// ===== INICIALIZAÇÃO AUTOMÁTICA =====
+window.addEventListener('load', function() {
+  // Forçar Admin e limpar tela de login
+  const ls = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'none';
+  
+  // Preencher dados da sidebar
+  const fields = {
+    'user-name-display': 'Administrador',
+    'user-role-label': 'admin@plusdin.com.br',
+    'user-avatar-init': 'AD',
+    'role-badge': 'Administrador'
+  };
+  for (let id in fields) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = fields[id];
+  }
+
+  // Abrir dashboard por padrão
+  navigate('dashboard', document.querySelector('[data-page="dashboard"]'));
+});
+
+// ===== MODALS (Ajustados) =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Fechar modal ao clicar fora dele
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
 
   // Preencher dados do usuário na sidebar
   var nameEl = document.getElementById('user-name-display');
