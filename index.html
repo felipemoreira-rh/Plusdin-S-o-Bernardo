@@ -6,7 +6,7 @@
 <title>Plusdin São Bernardo — Sistema de Gestão</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-/* MANTIDOS TODOS OS SEUS ESTILOS ORIGINAIS (VARIÁVEIS, SIDEBAR, TABELAS, ETC) */
+/* TODOS OS SEUS ESTILOS ORIGINAIS PRESERVADOS */
 :root{--orange:#F97316;--orange-light:#FFF7ED;--orange-dark:#EA580C;--orange-deep:#9A3412;--green:#16A34A;--green-light:#F0FDF4;--blue:#2563EB;--blue-light:#EFF6FF;--red:#DC2626;--red-light:#FEF2F2;--yellow:#D97706;--yellow-light:#FFFBEB;--purple:#7C3AED;--purple-light:#F5F3FF;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--sidebar-w:240px;--header-h:60px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh;display:flex}
@@ -22,19 +22,19 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
 .card{background:white;border-radius:12px;border:1px solid var(--gray-200);padding:20px 24px;margin-bottom:20px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none}
 .btn-primary{background:var(--orange);color:white}
-.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-green{background:var(--green-light);color:#15803D}
-.page{display:none} .page.active{display:block}
-
-/* ADICIONADO: Estilos do Calendário Interativo */
-.calendar-grid-auto { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
-.cal-day-box { background: white; border: 1px solid var(--gray-200); min-height: 90px; padding: 10px; border-radius: 8px; cursor: pointer; }
-.cal-day-box:hover { border-color: var(--orange); }
-.ev-item { background: var(--orange); color: white; font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-top: 4px; }
-
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--gray-100)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:white;border-radius:16px;padding:28px;width:500px}
+.page{display:none} .page.active{display:block}
+/* Estilos extras para o Calendário */
+.calendar-grid-auto{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--gray-200);border:1px solid var(--gray-200);border-radius:8px;overflow:hidden}
+.cal-day-box{background:white;min-height:100px;padding:10px;cursor:pointer}
+.cal-day-box:hover{background:var(--orange-light)}
+.ev-pill{background:var(--orange);color:white;font-size:10px;padding:2px 4px;border-radius:4px;margin-top:4px;white-space:nowrap;overflow:hidden}
 </style>
 </head>
 <body>
@@ -44,10 +44,10 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
     <div class="logo-badge">PLUSDIN</div>
     <h1 style="font-family:'Barlow Condensed';margin:10px 0 20px">SÃO BERNARDO</h1>
     <div style="text-align:left;margin-bottom:15px">
-      <label>E-MAIL DE ACESSO</label>
-      <input type="email" id="login-email" placeholder="seu@email.com" style="width:100%;padding:10px;margin-top:5px">
+      <label style="font-size:11px;font-weight:700;color:var(--gray-500)">E-MAIL DE ACESSO</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" style="width:100%;padding:10px;margin-top:5px;border:1px solid var(--gray-200);border-radius:8px">
     </div>
-    <button class="btn btn-primary" style="width:100%" onclick="checkAuth()">Entrar no Sistema</button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkAuth()">Entrar no Sistema</button>
   </div>
 </div>
 
@@ -69,14 +69,14 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
 <div class="main">
   <div class="header">
     <h1 id="page-title">Dashboard</h1>
-    <div id="logged-user" style="margin-left:auto;font-weight:700;color:var(--orange)"></div>
+    <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--orange)" id="user-display"></div>
   </div>
 
   <div class="content">
     <div id="page-dashboard" class="page active">
-       <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
-          <div class="card"><h4>Atletas</h4><p style="font-size:24px">48</p></div>
-          <div class="card"><h4>Frequência</h4><p style="font-size:24px">87%</p></div>
+       <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+          <div class="card"><h4>Atletas</h4><p style="font-size:24px;font-weight:800">48</p></div>
+          <div class="card"><h4>Frequência</h4><p style="font-size:24px;font-weight:800">87%</p></div>
        </div>
     </div>
 
@@ -86,11 +86,12 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
           <h3>Gestão de Atletas</h3>
           <button class="btn btn-primary">+ Novo Atleta</button>
         </div>
-        <table>
-          <thead><tr><th>Atleta</th><th>Categoria</th><th>Documentos</th><th>Status</th></tr></thead>
-          <tbody id="atletas-table">
-            </tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Atleta</th><th>Categoria</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="atletas-table"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -100,110 +101,148 @@ body{font-family:'Barlow',sans-serif;background:var(--gray-50);color:var(--gray-
                 <h3>Comissão Técnica</h3>
                 <button class="btn btn-primary" onclick="openModal('modal-comissao')">+ Novo Membro</button>
             </div>
-            <div id="lista-comissao" style="margin-top:20px"></div>
+            <div id="lista-comissao" style="margin-top:20px;display:grid;grid-template-columns:repeat(2,1fr);gap:15px"></div>
         </div>
     </div>
 
     <div id="page-financeiro" class="page">
         <div class="card">
             <h3>Controle Financeiro</h3>
-            <div id="lista-financeiro" style="margin-top:15px"></div>
+            <div class="table-wrap" style="margin-top:15px">
+                <table>
+                    <thead><tr><th>Descrição</th><th>Valor</th><th>Ação</th></tr></thead>
+                    <tbody id="lista-financeiro"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div id="page-calendario" class="page">
         <div class="card">
-            <h3>Calendário de Atividades</h3>
+            <div style="display:flex;justify-content:space-between;margin-bottom:15px">
+                <h3>Março 2026</h3>
+            </div>
             <div class="calendar-grid-auto" id="calendar-render"></div>
         </div>
     </div>
 
     <div id="page-configuracoes" class="page">
         <div class="card">
-            <h3>E-mails com Acesso Permitido</h3>
+            <h3>E-mails Autorizados</h3>
             <div style="display:flex;gap:10px;margin:15px 0">
-                <input type="email" id="new-email" placeholder="E-mail para autorizar" style="flex:1;padding:8px">
+                <input type="email" id="new-email" placeholder="E-mail para autorizar" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px">
                 <button class="btn btn-primary" onclick="addEmail()">Autorizar</button>
             </div>
-            <div id="emails-list"></div>
+            <div id="emails-list" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
     </div>
   </div>
 </div>
 
 <div id="modal-comissao" class="modal-overlay"><div class="modal">
-    <h3>Novo Membro</h3>
-    <input type="text" id="c-nome" placeholder="Nome" style="width:100%;margin-top:10px;padding:8px">
-    <input type="text" id="c-cargo" placeholder="Cargo" style="width:100%;margin-top:10px;padding:8px">
-    <button class="btn btn-primary" style="margin-top:15px" onclick="saveMembro()">Salvar</button>
-    <button class="btn" onclick="closeModal('modal-comissao')">Cancelar</button>
+    <h3>Novo Membro da Comissão</h3>
+    <input type="text" id="c-nome" placeholder="Nome Completo" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1px solid #ddd">
+    <input type="text" id="c-cargo" placeholder="Cargo (Ex: Auxiliar)" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1px solid #ddd">
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn" onclick="closeModal('modal-comissao')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveMembro()">Salvar Membro</button>
+    </div>
 </div></div>
 
 <div id="modal-cal" class="modal-overlay"><div class="modal">
-    <h3>Agendar para o dia <span id="dia-sel"></span></h3>
-    <input type="text" id="event-desc" placeholder="Ex: Treino Tático" style="width:100%;margin-top:10px;padding:8px">
-    <button class="btn btn-primary" style="margin-top:15px" onclick="saveEvento()">Agendar</button>
-    <button class="btn" onclick="closeModal('modal-cal')">Fechar</button>
+    <h3>Agendar Evento: Dia <span id="dia-sel"></span></h3>
+    <input type="text" id="event-desc" placeholder="Ex: Treino de Finalização" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;border:1px solid #ddd">
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn" onclick="closeModal('modal-cal')">Fechar</button>
+        <button class="btn btn-primary" onclick="saveEvento()">Salvar na Agenda</button>
+    </div>
 </div></div>
 
 <script>
-/* DADOS DO SISTEMA */
+/* DADOS E LÓGICA (Mantendo a compatibilidade com sua estrutura) */
 let db = JSON.parse(localStorage.getItem('psb_db')) || {
     acessos: ["admin@plusdin.com.br"],
-    atletas: [{id:1, nome: "João Silva", cat: "Sub 15", status: "Ativo", docs: []}],
-    comissao: [{nome: "Felipe Oliveira", cargo: "Treinador"}],
-    financeiro: [{id:101, item: "Aluguel de Quadra", valor: "450,00"}],
+    atletas: [{id:1, nome: "João Silva", cat: "Sub 15", status: "Ativo"}],
+    comissao: [{nome: "Felipe Oliveira", cargo: "Treinador Principal"}],
+    financeiro: [{id:101, item: "Mensalidade Março", valor: "150,00"}],
     agenda: {}
 };
 
-let diaAtual = null;
+let diaSelecionado = null;
 
 function save(){ 
     localStorage.setItem('psb_db', JSON.stringify(db)); 
     render(); 
 }
 
-/* LOGIN REAL */
 function checkAuth() {
     const email = document.getElementById('login-email').value;
     if(db.acessos.includes(email)) {
         document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('logged-user').innerText = email;
+        document.getElementById('user-display').innerText = `Logado como: ${email}`;
     } else {
-        alert("Acesso negado: Este e-mail não está autorizado.");
+        alert("Acesso negado. E-mail não autorizado.");
     }
 }
 
-/* CALENDÁRIO */
+function render() {
+    // Render Atletas
+    document.getElementById('atletas-table').innerHTML = db.atletas.map(a => `
+        <tr>
+            <td><strong>${a.nome}</strong></td><td>${a.cat}</td>
+            <td><span style="color:green;font-weight:700">${a.status}</span></td>
+            <td><button class="btn btn-sm">Ver Perfil</button></td>
+        </tr>`).join('');
+    
+    // Render Financeiro com Exclusão
+    document.getElementById('lista-financeiro').innerHTML = db.financeiro.map(f => `
+        <tr>
+            <td>${f.item}</td><td>R$ ${f.valor}</td>
+            <td><button class="btn" style="color:red" onclick="delFin(${f.id})">🗑️</button></td>
+        </tr>`).join('');
+
+    // Render Comissão
+    document.getElementById('lista-comissao').innerHTML = db.comissao.map(c => `
+        <div class="card" style="margin-bottom:0">
+            <strong>${c.nome}</strong><br><small style="color:var(--gray-500)">${c.cargo}</small>
+        </div>`).join('');
+
+    // Render Acessos
+    document.getElementById('emails-list').innerHTML = db.acessos.map(acc => `
+        <div style="padding:10px;background:var(--gray-100);border-radius:8px;font-size:13px">✅ ${acc}</div>
+    `).join('');
+
+    renderCalendar();
+}
+
 function renderCalendar() {
     const container = document.getElementById('calendar-render');
     container.innerHTML = '';
     for(let i=1; i<=31; i++){
-        const evs = db.agenda[i] || [];
+        const eventos = db.agenda[i] || [];
         container.innerHTML += `
             <div class="cal-day-box" onclick="openCal(${i})">
-                <strong>${i}</strong>
-                ${evs.map(e => `<div class="ev-item">${e}</div>`).join('')}
+                <span style="font-weight:700;font-size:12px">${i}</span>
+                ${eventos.map(ev => `<div class="ev-pill">${ev}</div>`).join('')}
             </div>`;
     }
 }
 
-function openCal(dia){ diaAtual = dia; document.getElementById('dia-sel').innerText = dia; openModal('modal-cal'); }
+function openCal(dia){ diaSelecionado = dia; document.getElementById('dia-sel').innerText = dia; openModal('modal-cal'); }
 function saveEvento(){ 
-    if(!db.agenda[diaAtual]) db.agenda[diaAtual] = [];
-    db.agenda[diaAtual].push(document.getElementById('event-desc').value);
+    if(!db.agenda[diaSelecionado]) db.agenda[diaSelecionado] = [];
+    db.agenda[diaSelecionado].push(document.getElementById('event-desc').value);
+    document.getElementById('event-desc').value = '';
     save(); closeModal('modal-cal');
 }
 
-/* FINANCEIRO - EXCLUSÃO */
 function delFin(id){
-    if(confirm("Excluir lançamento?")){
+    if(confirm("Deseja realmente excluir este registro financeiro?")){
         db.financeiro = db.financeiro.filter(f => f.id !== id);
         save();
     }
 }
 
-/* COMISSÃO - ADICIONAR */
 function saveMembro(){
     db.comissao.push({
         nome: document.getElementById('c-nome').value,
@@ -212,49 +251,21 @@ function saveMembro(){
     save(); closeModal('modal-comissao');
 }
 
-/* GESTÃO DE ACESSOS */
 function addEmail(){
     const e = document.getElementById('new-email').value;
-    if(e) { db.acessos.push(e); save(); }
+    if(e && !db.acessos.includes(e)) { db.acessos.push(e); save(); }
 }
 
-/* NAVEGAÇÃO E UTILS */
 function navigate(id, el){
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if(el) el.classList.add('active');
+    document.getElementById('page-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
 }
+
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-
-/* RENDERIZAÇÃO GERAL */
-function render() {
-    // Atletas
-    document.getElementById('atletas-table').innerHTML = db.atletas.map(a => `
-        <tr>
-            <td>${a.nome}</td><td>${a.cat}</td>
-            <td><button class="btn btn-sm" style="border:1px solid #ddd">📎 Doc (${a.docs.length})</button></td>
-            <td><span class="badge badge-green">${a.status}</span></td>
-        </tr>`).join('');
-    
-    // Financeiro
-    document.getElementById('lista-financeiro').innerHTML = db.financeiro.map(f => `
-        <div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee">
-            <span>${f.item} - R$ ${f.valor}</span>
-            <button class="btn btn-sm" style="color:red" onclick="delFin(${f.id})">🗑️</button>
-        </div>`).join('');
-
-    // Comissão
-    document.getElementById('lista-comissao').innerHTML = db.comissao.map(c => `
-        <div class="card" style="margin-bottom:10px"><strong>${c.nome}</strong> - ${c.cargo}</div>
-    `).join('');
-
-    // Acessos
-    document.getElementById('emails-list').innerHTML = db.acessos.map(acc => `<div>✅ ${acc}</div>`).join('');
-
-    renderCalendar();
-}
 
 render();
 </script>
