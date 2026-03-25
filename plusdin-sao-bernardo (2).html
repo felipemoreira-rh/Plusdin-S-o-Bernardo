@@ -194,26 +194,6 @@ input:checked+.slider:before{transform:translateX(18px)}
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="logo-badge">PLUSDIN</div>
-      <h1>São Bernardo</h1>
-      <p>Sistema de Gestão — Futebol de Base</p>
-    </div>
-    <p style="font-size:12px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Perfil de acesso:</p>
-    <div class="login-roles" id="role-selector">
-      <button class="login-role-btn selected" onclick="selectRole('admin',this)"><div class="role-icon">🛡️</div><div class="role-name">Administrador</div><div class="role-sub">Acesso total</div></button>
-      <button class="login-role-btn" onclick="selectRole('administrativo',this)"><div class="role-icon">📋</div><div class="role-name">Administrativo</div><div class="role-sub">Atletas, financeiro...</div></button>
-      <button class="login-role-btn" onclick="selectRole('treinador',this)"><div class="role-icon">🏋️</div><div class="role-name">Treinador</div><div class="role-sub">Atletas, chamadas...</div></button>
-    </div>
-    <div class="form-group" style="margin-bottom:12px"><label>Email</label><input type="email" id="login-email" value="admin@plusdin.com.br"></div>
-    <div class="form-group" style="margin-bottom:20px"><label>Senha</label><input type="password" id="login-pass" value="123456"></div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">Entrar no Sistema ›</button>
-  </div>
-</div>
-
 <!-- ===== SIDEBAR ===== -->
 <div class="sidebar">
   <div class="sidebar-logo">
