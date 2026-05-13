@@ -580,7 +580,7 @@ textarea{resize:vertical;min-height:80px}
           <div class="stat-card"><div class="stat-label">Recusados</div><div class="stat-value" style="color:var(--red)" id="stat-fin-recusado">R$ 0,00</div></div>
           <div class="stat-card"><div class="stat-label">Total Solicitações</div><div class="stat-value" id="stat-fin-qtd">0</div></div>
         </div>
-        <div class="card"><div class="card-title" style="margin-bottom:16px">Histórico</div><div class="table-wrap"><table><thead><tr><th>Descrição</th><th>Solicitante</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead><tbody id="fin-hist-tbody"></tbody></table></div></div>
+        <div class="card"><div class="card-title" style="margin-bottom:16px">Histórico</div><div class="table-wrap"><table><thead><tr><th>Descrição</th><th>Solicitante</th><th>Categoria</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead><tbody id="fin-hist-tbody"></tbody></table></div></div>
       </div>
       <div id="fin-aprovadores" class="fin-tab" style="display:none">
         <div class="card" style="max-width:600px">
@@ -714,12 +714,33 @@ let db, loggedUser = null;
 let atletas=[], comissao=[], movimentacoes=[], usuarios=[], aprovadores=[], documentos=[], anotacoes=[], testes=[], financeiroReqs=[];
 let configFin={}, freqStates={};
 let currentRole='admin', currentAtletaId=null, currentMembroId=null;
+const SESSION_KEY='plusdin_session';
+const SESSION_DAYS=7;
 
 // ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
 let googleProvider = null;
 
+function saveSession(userData){
+  const expires=Date.now()+SESSION_DAYS*24*60*60*1000;
+  localStorage.setItem(SESSION_KEY,JSON.stringify({user:userData,expires}));
+}
+function loadSession(){
+  try{const raw=localStorage.getItem(SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);if(Date.now()>s.expires){localStorage.removeItem(SESSION_KEY);return null;}return s.user;}catch(e){return null;}
+}
+function clearSession(){localStorage.removeItem(SESSION_KEY);}
+function initUserUI(ud,uid){
+  loggedUser={id:uid,...ud}; currentRole=ud.nivel||'treinador';
+  const init=ud.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('user-avatar-init').textContent=init;
+  document.getElementById('user-name-display').textContent=ud.nome;
+  document.getElementById('user-role-label').textContent=ud.email;
+  document.getElementById('role-badge').textContent=nivelLabels[currentRole]||currentRole;
+  document.getElementById('role-badge').className='badge '+(nivelColors[currentRole]||'badge-gray');
+  setupDatabaseListeners(); applyAccessControl(); mostrarApp();
+  navigate('dashboard',document.querySelector('[data-page="dashboard"]'));
+}
 window.onload = function() {
   emailjs.init(EMAIL_PUBLIC_KEY);
   if(typeof firebase==='undefined'){alert("⚠️ Erro: Firebase não carregou. Acesse pelo link .web.app");return;}
@@ -730,7 +751,16 @@ window.onload = function() {
     db.collection('usuarios').where('email','==','felipe.moreira@etus.com.br').get().then(snap=>{
       if(snap.empty) db.collection('usuarios').add({nome:'Felipe Moreira',email:'felipe.moreira@etus.com.br',senha:'admin123',nivel:'admin',status:'Ativo'});
     }).catch(e=>console.error('Erro ao verificar usuário master:',e));
-    mostrarTelaLogin();
+    // Restaurar sessão salva
+    const saved=loadSession();
+    if(saved&&saved.id){
+      db.collection('usuarios').doc(saved.id).get().then(doc=>{
+        if(doc.exists&&doc.data().status==='Ativo'){
+          initUserUI(doc.data(),doc.id);
+          showToast('🚀','Sessão restaurada!');
+        }else{clearSession();mostrarTelaLogin();}
+      }).catch(()=>{clearSession();mostrarTelaLogin();});
+    }else{mostrarTelaLogin();}
   }catch(e){console.error(e);alert("Erro ao conectar ao banco de dados.");}
 };
 
@@ -771,16 +801,8 @@ function loginComGoogle(){
         btn.classList.remove('loading');
         if(snap.empty){errTxt.textContent='Conta Google não cadastrada no sistema. Peça ao administrador para cadastrar seu e-mail.';errEl.classList.add('show');firebase.auth().signOut();return;}
         const ud=snap.docs[0].data(); const uid=snap.docs[0].id;
-        loggedUser={id:uid,...ud}; currentRole=ud.nivel||'treinador';
-        const init=ud.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
-        document.getElementById('user-avatar-init').textContent=init;
-        document.getElementById('user-name-display').textContent=ud.nome;
-        document.getElementById('user-role-label').textContent=ud.email;
-        document.getElementById('role-badge').textContent=nivelLabels[currentRole]||currentRole;
-        document.getElementById('role-badge').className='badge '+(nivelColors[currentRole]||'badge-gray');
-        setupDatabaseListeners(); applyAccessControl();
-        mostrarApp();
-        navigate('dashboard',document.querySelector('.nav-item[data-page="dashboard"]'));
+        saveSession({id:uid,...ud});
+        initUserUI(ud,uid);
         showToast('🚀',`Bem-vindo, ${ud.nome.split(' ')[0]}!`);
       });
     }).catch(e=>{
@@ -803,21 +825,14 @@ function fazerLogin(){
       if(snap.empty){errTxt.textContent='Usuário não encontrado ou inativo.';errEl.classList.add('show');return;}
       const ud=snap.docs[0].data(); const uid=snap.docs[0].id;
       if(!ud.senha||ud.senha!==senha){errTxt.textContent='Senha incorreta.';errEl.classList.add('show');return;}
-      loggedUser={id:uid,...ud}; currentRole=ud.nivel||'treinador';
-      const init=ud.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
-      document.getElementById('user-avatar-init').textContent=init;
-      document.getElementById('user-name-display').textContent=ud.nome;
-      document.getElementById('user-role-label').textContent=ud.email;
-      document.getElementById('role-badge').textContent=nivelLabels[currentRole]||currentRole;
-      document.getElementById('role-badge').className='badge '+(nivelColors[currentRole]||'badge-gray');
-      setupDatabaseListeners(); applyAccessControl(); mostrarApp();
-      navigate('dashboard',document.querySelector('[data-page="dashboard"]'));
+      saveSession({id:uid,...ud});
+      initUserUI(ud,uid);
       showToast('🚀',`Bem-vindo, ${ud.nome.split(' ')[0]}!`);
     })
     .catch(err=>{btn.classList.remove('loading');errTxt.textContent='Erro de conexão.';errEl.classList.add('show');console.error(err);});
 }
 function fazerLogout(){
-  if(confirm('Deseja sair do sistema?')){loggedUser=null;currentRole='admin';currentAtletaId=null;currentMembroId=null;mostrarTelaLogin();}
+  if(confirm('Deseja sair do sistema?')){clearSession();loggedUser=null;currentRole='admin';currentAtletaId=null;currentMembroId=null;firebase.auth().signOut().catch(()=>{});mostrarTelaLogin();}
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1038,7 +1053,7 @@ function renderFinanceiro(){
   const sBody=document.getElementById('fin-solic-tbody');const hBody=document.getElementById('fin-hist-tbody');if(!sBody||!hBody)return;
   const pend=financeiroReqs.filter(f=>f.status==='Pendente');const hist=financeiroReqs.filter(f=>f.status!=='Pendente');
   if(!pend.length)sBody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray-500)">Nenhuma solicitação pendente.</td></tr>';else sBody.innerHTML=pend.map(f=>`<tr><td><strong>${f.desc}</strong><br><small style="color:var(--gray-500)">${f.time}</small></td><td>${f.solicitante}</td><td><span class="badge badge-gray">${f.cat}</span></td><td><strong>R$ ${parseFloat(f.valor).toFixed(2).replace('.',',')}</strong></td><td>${new Date(f.data).toLocaleDateString('pt-BR')}</td><td><span class="badge badge-yellow">⏳ Pendente</span></td><td><button class="btn btn-secondary btn-sm" onclick="openModal('modal-upload-comp')">📎</button></td><td><button class="btn btn-success btn-sm" onclick="alterarStatusFin('${f.id}','Aprovado')">✓</button><button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="alterarStatusFin('${f.id}','Recusado')">✗</button></td></tr>`).join('');
-  if(!hist.length)hBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray-500)">Nenhum histórico.</td></tr>';else hBody.innerHTML=hist.map(f=>`<tr><td><strong>${f.desc}</strong></td><td>${f.solicitante}</td><td>R$ ${parseFloat(f.valor).toFixed(2).replace('.',',')}</td><td>${new Date(f.data).toLocaleDateString('pt-BR')}</td><td><span class="badge ${f.status==='Aprovado'?'badge-green':'badge-red'}">${f.status}</span></td></tr>`).join('');
+  if(!hist.length)hBody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray-500)">Nenhum histórico.</td></tr>';else hBody.innerHTML=hist.map(f=>`<tr><td><strong>${f.desc||'—'}</strong>${f.just?'<br><small style="color:var(--gray-500)">'+f.just+'</small>':''}${f.time?'<br><small style="color:var(--gray-400)">'+f.time+'</small>':''}</td><td>${f.solicitante||'—'}</td><td><span class="badge badge-gray">${f.cat||'—'}</span></td><td><strong>R$ ${parseFloat(f.valor||0).toFixed(2).replace('.',',')}</strong></td><td>${f.data?new Date(f.data).toLocaleDateString('pt-BR'):'—'}</td><td><span class="badge ${f.status==='Aprovado'?'badge-green':'badge-red'}">${f.status}</span></td></tr>`).join('');
   const tP=hist.filter(f=>f.status==='Aprovado').reduce((a,c)=>a+parseFloat(c.valor),0);const tR=hist.filter(f=>f.status==='Recusado').reduce((a,c)=>a+parseFloat(c.valor),0);const tPe=pend.reduce((a,c)=>a+parseFloat(c.valor),0);
   const v=id=>document.getElementById(id);
   if(v('stat-fin-pago'))v('stat-fin-pago').textContent=`R$ ${tP.toFixed(2).replace('.',',')}`;
