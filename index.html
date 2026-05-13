@@ -932,7 +932,7 @@ function saveAtleta(){
 function editAtleta(id){
   currentAtletaId=id;const a=atletas.find(x=>x.id===id);if(!a)return;
   document.getElementById('modal-atleta-title').textContent='Editar Atleta';
-  document.getElementById('a-nome').value=a.nome;document.getElementById('a-cat').value=a.cat;document.getElementById('a-pos').value=a.pos;document.getElementById('a-pe').value=a.pe;document.getElementById('a-resp').value=a.resp;document.getElementById('a-tel').value=a.tel;document.getElementById('a-email').value=a.email;document.getElementById('a-end').value=a.end;
+  document.getElementById('a-nome').value=a.nome;document.getElementById('a-nasc').value=a.nasc||'';document.getElementById('a-cat').value=a.cat;document.getElementById('a-pos').value=a.pos;document.getElementById('a-pe').value=a.pe;document.getElementById('a-resp').value=a.resp||'';document.getElementById('a-tel').value=a.tel||'';document.getElementById('a-email').value=a.email||'';document.getElementById('a-end').value=a.end||'';
   openModal('modal-atleta');
 }
 function deleteAtleta(id){if(confirm('Apagar este atleta?'))db.collection('atletas').doc(id).delete().then(()=>showToast('🗑️','Atleta removido!')).catch(e=>{console.error(e);showToast('❌','Erro ao remover.');});}
