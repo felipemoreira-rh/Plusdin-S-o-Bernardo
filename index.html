@@ -778,10 +778,10 @@ function loginComGoogle(){
         document.getElementById('user-role-label').textContent=ud.email;
         document.getElementById('role-badge').textContent=nivelLabels[currentRole]||currentRole;
         document.getElementById('role-badge').className='badge '+(nivelColors[currentRole]||'badge-gray');
-        applyAccessControl();
+        setupDatabaseListeners(); applyAccessControl();
         mostrarApp();
-        startListeners();
         navigate('dashboard',document.querySelector('.nav-item[data-page="dashboard"]'));
+        showToast('🚀',`Bem-vindo, ${ud.nome.split(' ')[0]}!`);
       });
     }).catch(e=>{
       btn.classList.remove('loading');
