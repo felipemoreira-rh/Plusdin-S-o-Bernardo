@@ -472,6 +472,7 @@ textarea{resize:vertical;min-height:80px}
           <select id="ch-sel-mes" onchange="chOnMesChange()" style="padding:9px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;color:var(--gray-700);background:white;cursor:pointer;outline:none"></select>
           <select id="ch-sel-ano" onchange="chOnMesChange()" style="padding:9px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;color:var(--gray-700);background:white;cursor:pointer;outline:none"></select>
         </div>
+        <button class="btn btn-secondary" onclick="gerarRelatorioFrequencia()" style="font-size:13px">📊 Relatório Mensal</button>
         <div class="sync-wrap"><div class="sync-dot-ch ok" id="ch-sync-dot"></div><span id="ch-sync-label">Sincronizado</span></div>
       </div>
 
@@ -1180,6 +1181,72 @@ function chBuildSummaries(atletaId,week){
 function chFreqColor(pct){if(pct===null)return'var(--gray-300)';return pct>=85?'var(--green)':pct>=65?'var(--orange)':'var(--red)';}
 function chSumHTML(pct,color,p,a,j){if(pct===null)return`<span style="color:var(--gray-300);font-size:12px">—</span>`;return`<div class="ch-freq-badge"><span class="ch-freq-pct" style="color:${color}">${pct}%</span><span class="ch-freq-counts">✅${p} ❌${a} ⚠️${j}</span><div class="ch-bar"><div class="ch-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;}
 function chSetSync(status){const dot=document.getElementById('ch-sync-dot');const lbl=document.getElementById('ch-sync-label');if(!dot||!lbl)return;dot.className='sync-dot-ch '+status;lbl.textContent=status==='saving'?'Salvando...':status==='ok'?'Sincronizado':'Erro de conexão';}
+function gerarRelatorioFrequencia(){
+  const mes=parseInt(document.getElementById('ch-sel-mes').value);
+  const ano=parseInt(document.getElementById('ch-sel-ano').value);
+  const mesNome=CH_MESES[mes];
+  const cats=['Sub 11','Sub 13','Sub 15','Sub 17'];
+  function monthDays(y,m){const days=[];const d=new Date(y,m,1);while(d.getMonth()===m){const dw=d.getDay();if(dw>=1&&dw<=5)days.push(new Date(d));d.setDate(d.getDate()+1);}return days;}
+  const mDays=monthDays(ano,mes);
+  let html=`<html><head><meta charset="utf-8"><title>Relatório Frequência - ${mesNome} ${ano}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;padding:30px;color:#1a1a2e;font-size:13px}
+h1{font-size:22px;margin-bottom:4px}h2{font-size:16px;margin:24px 0 10px;color:#e67e22;border-bottom:2px solid #e67e22;padding-bottom:4px}
+.sub{color:#888;font-size:13px;margin-bottom:20px}.stats{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.stat-box{background:#f8f9fa;border-radius:8px;padding:12px 18px;text-align:center;min-width:140px}
+.stat-box .val{font-size:22px;font-weight:800}.stat-box .lbl{font-size:11px;color:#888;margin-top:2px}
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px}
+th{background:#f1f1f1;padding:8px 6px;text-align:left;font-weight:700;border-bottom:2px solid #ddd}
+td{padding:6px;border-bottom:1px solid #eee}.best{background:#e8f5e9;font-weight:700}
+.pct{font-weight:700}.hi{color:#27ae60}.mid{color:#e67e22}.lo{color:#e74c3c}
+.footer{margin-top:30px;font-size:11px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:10px}
+@media print{body{padding:15px}button{display:none!important}}
+</style></head><body>`;
+  html+=`<h1>📊 Relatório Mensal de Frequência</h1><p class="sub">Plusdin São Bernardo · ${mesNome} ${ano} · ${mDays.length} dias úteis</p>`;
+  html+=`<button onclick="window.print()" style="padding:8px 20px;background:#e67e22;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;margin-bottom:20px">🖨️ Imprimir / Salvar PDF</button>`;
+  let resumoGeral=[];
+  cats.forEach(cat=>{
+    const ath=atletas.filter(a=>a.cat===cat&&a.status==='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome));
+    if(!ath.length)return;
+    let catData=[];
+    ath.forEach(a=>{
+      const p=mDays.filter(d=>chGet(a.id,d)==='present').length;
+      const ab=mDays.filter(d=>chGet(a.id,d)==='absent').length;
+      const j=mDays.filter(d=>chGet(a.id,d)==='justified').length;
+      const r=mDays.filter(d=>chGet(a.id,d)!=='none').length;
+      const pct=r>0?Math.round(((p+j)/r)*100):null;
+      catData.push({nome:a.nome,p,ab,j,r,pct});
+    });
+    const withData=catData.filter(x=>x.pct!==null);
+    const avg=withData.length?Math.round(withData.reduce((s,x)=>s+x.pct,0)/withData.length):null;
+    const best=withData.length?withData.reduce((b,x)=>x.pct>b.pct?x:b,withData[0]):null;
+    const worst=withData.length?withData.reduce((w,x)=>x.pct<w.pct?x:w,withData[0]):null;
+    resumoGeral.push({cat,total:ath.length,avg,best:best?best.nome:'-',bestPct:best?best.pct:0});
+    html+=`<h2>⚽ ${cat} (${ath.length} atletas)</h2>`;
+    html+=`<div class="stats">`;
+    html+=`<div class="stat-box"><div class="val ${avg>=85?'hi':avg>=65?'mid':'lo'}">${avg!==null?avg+'%':'—'}</div><div class="lbl">Média da Categoria</div></div>`;
+    if(best)html+=`<div class="stat-box"><div class="val hi">${best.pct}%</div><div class="lbl">🏆 ${best.nome}</div></div>`;
+    if(worst&&worst.nome!==best?.nome)html+=`<div class="stat-box"><div class="val lo">${worst.pct}%</div><div class="lbl">⚠️ ${worst.nome}</div></div>`;
+    html+=`</div>`;
+    html+=`<table><thead><tr><th>#</th><th>Atleta</th><th>✅ Presenças</th><th>❌ Faltas</th><th>⚠️ Just.</th><th>Total Reg.</th><th>Frequência</th></tr></thead><tbody>`;
+    catData.sort((a,b)=>(b.pct||0)-(a.pct||0));
+    catData.forEach((x,i)=>{
+      const isBest=best&&x.nome===best.nome;
+      const cls=x.pct===null?'':x.pct>=85?'hi':x.pct>=65?'mid':'lo';
+      html+=`<tr${isBest?' class="best"':''}><td>${i+1}</td><td>${x.nome}${isBest?' 🏆':''}</td><td>${x.p}</td><td>${x.ab}</td><td>${x.j}</td><td>${x.r}/${mDays.length}</td><td class="pct ${cls}">${x.pct!==null?x.pct+'%':'Sem registro'}</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+  });
+  if(resumoGeral.length>1){
+    html+=`<h2>📋 Resumo Geral</h2><table><thead><tr><th>Categoria</th><th>Atletas</th><th>Média Freq.</th><th>🏆 Melhor Atleta</th><th>Freq.</th></tr></thead><tbody>`;
+    resumoGeral.forEach(r=>{
+      const cls=r.avg===null?'':r.avg>=85?'hi':r.avg>=65?'mid':'lo';
+      html+=`<tr><td><strong>${r.cat}</strong></td><td>${r.total}</td><td class="pct ${cls}">${r.avg!==null?r.avg+'%':'—'}</td><td>${r.best}</td><td class="pct hi">${r.bestPct?r.bestPct+'%':'—'}</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+  }
+  html+=`<div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} · Plusdin São Bernardo</div></body></html>`;
+  const w=window.open('','_blank','width=900,height=700');w.document.write(html);w.document.close();
+}
 // Compatibilidade com navigate() antigo
 function renderFrequency(){initChamadas();}
 
