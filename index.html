@@ -318,7 +318,19 @@ textarea{resize:vertical;min-height:80px}
         <div class="login-spinner" id="login-spinner"></div>
         <span class="login-btn-text">Entrar no Sistema</span>
       </button>
-      <div style="text-align:center;margin-top:6px;font-size:12px;color:var(--gray-400)">Perfis de acesso disponíveis</div>
+      <div style="display:flex;align-items:center;gap:12px;margin:18px 0 14px">
+        <div style="flex:1;height:1px;background:var(--gray-200)"></div>
+        <span style="font-size:12px;color:var(--gray-400);font-weight:600">ou</span>
+        <div style="flex:1;height:1px;background:var(--gray-200)"></div>
+      </div>
+      <button class="btn-login" id="btn-google" onclick="loginComGoogle()" style="background:white;color:var(--gray-700);border:1.5px solid var(--gray-200);font-weight:600">
+        <div class="login-spinner" id="google-spinner"></div>
+        <span class="login-btn-text" id="google-btn-text">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Entrar com Google
+        </span>
+      </button>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--gray-400)">Perfis de acesso disponíveis</div>
       <div class="login-nivel-row">
         <span class="nivel-demo admin">🛡️ Administrador</span>
         <span class="nivel-demo adm">📋 Administrativo</span>
@@ -674,6 +686,7 @@ textarea{resize:vertical;min-height:80px}
 
 <!-- Firebase -->
 <script defer src="/__/firebase/10.8.0/firebase-app-compat.js"></script>
+<script defer src="/__/firebase/10.8.0/firebase-auth-compat.js"></script>
 <script defer src="/__/firebase/10.8.0/firebase-firestore-compat.js"></script>
 <script defer src="/__/firebase/init.js"></script>
 
@@ -705,11 +718,14 @@ let currentRole='admin', currentAtletaId=null, currentMembroId=null;
 // ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
+let googleProvider = null;
+
 window.onload = function() {
   emailjs.init(EMAIL_PUBLIC_KEY);
   if(typeof firebase==='undefined'){alert("⚠️ Erro: Firebase não carregou. Acesse pelo link .web.app");return;}
   try{
     db = firebase.firestore();
+    googleProvider = new firebase.auth.GoogleAuthProvider();
     // Garante usuário master
     db.collection('usuarios').where('email','==','felipe.moreira@etus.com.br').get().then(snap=>{
       if(snap.empty) db.collection('usuarios').add({nome:'Felipe Moreira',email:'felipe.moreira@etus.com.br',senha:'admin123',nivel:'admin',status:'Ativo'});
@@ -741,6 +757,37 @@ function togglePw(){
   const ic=document.getElementById('toggle-pw');
   i.type=i.type==='password'?'text':'password';
   ic.textContent=i.type==='password'?'👁️':'🙈';
+}
+function loginComGoogle(){
+  const btn=document.getElementById('btn-google');
+  const errEl=document.getElementById('login-error');
+  const errTxt=document.getElementById('login-error-text');
+  btn.classList.add('loading'); errEl.classList.remove('show');
+  firebase.auth().signInWithPopup(googleProvider)
+    .then(result=>{
+      const gEmail=result.user.email.toLowerCase();
+      const gNome=result.user.displayName||gEmail;
+      return db.collection('usuarios').where('email','==',gEmail).where('status','==','Ativo').get().then(snap=>{
+        btn.classList.remove('loading');
+        if(snap.empty){errTxt.textContent='Conta Google não cadastrada no sistema. Peça ao administrador para cadastrar seu e-mail.';errEl.classList.add('show');firebase.auth().signOut();return;}
+        const ud=snap.docs[0].data(); const uid=snap.docs[0].id;
+        loggedUser={id:uid,...ud}; currentRole=ud.nivel||'treinador';
+        const init=ud.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+        document.getElementById('user-avatar-init').textContent=init;
+        document.getElementById('user-name-display').textContent=ud.nome;
+        document.getElementById('user-role-label').textContent=ud.email;
+        document.getElementById('role-badge').textContent=nivelLabels[currentRole]||currentRole;
+        document.getElementById('role-badge').className='badge '+(nivelColors[currentRole]||'badge-gray');
+        applyAccessControl();
+        mostrarApp();
+        startListeners();
+        navigate('dashboard',document.querySelector('.nav-item[data-page="dashboard"]'));
+      });
+    }).catch(e=>{
+      btn.classList.remove('loading');
+      console.error(e);
+      if(e.code!=='auth/popup-closed-by-user'){errTxt.textContent='Erro ao autenticar com Google.';errEl.classList.add('show');}
+    });
 }
 function fazerLogin(){
   const email=document.getElementById('login-email').value.trim().toLowerCase();
