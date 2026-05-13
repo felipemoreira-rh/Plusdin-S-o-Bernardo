@@ -361,6 +361,7 @@ textarea{resize:vertical;min-height:80px}
     <div class="nav-item" data-page="chamadas" onclick="navigate('chamadas',this)"><span class="icon">✅</span> Chamadas</div>
     <div class="nav-item" data-page="notas" onclick="navigate('notas',this)"><span class="icon">📝</span> Anotações</div>
     <div class="nav-item" data-page="calendario" onclick="navigate('calendario',this)"><span class="icon">📅</span> Calendário</div>
+    <div class="nav-item" data-page="saude-perf" onclick="navigate('saude-perf',this)"><span class="icon">🏥</span> Saúde & Performance</div>
     <div class="nav-section-label">Gestão</div>
     <div class="nav-item" data-page="financeiro" onclick="navigate('financeiro',this)"><span class="icon">💳</span> Financeiro</div>
     <div class="nav-item" data-page="movimentacoes" onclick="navigate('movimentacoes',this)"><span class="icon">🔄</span> Movimentações</div>
@@ -526,7 +527,7 @@ textarea{resize:vertical;min-height:80px}
             <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveNotaPage()">Salvar Anotação</button>
           </div>
         </div>
-        <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:16px;font-weight:700">Anotações Recentes</h2></div><div id="notas-recentes-content"></div></div>
+        <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:16px;font-weight:700">Anotações Recentes</h2><button class="btn btn-secondary" onclick="gerarResumoQuinzenal()" style="font-size:13px">📋 Resumo Quinzenal</button></div><div id="notas-recentes-content"></div></div>
       </div>
     </div>
 
@@ -545,6 +546,27 @@ textarea{resize:vertical;min-height:80px}
           <div class="cal-day"><div class="cal-day-num">16</div></div><div class="cal-day"><div class="cal-day-num">17</div></div><div class="cal-day"><div class="cal-day-num">18</div></div><div class="cal-day"><div class="cal-day-num">19</div></div><div class="cal-day"><div class="cal-day-num">20</div></div><div class="cal-day"><div class="cal-day-num">21</div></div><div class="cal-day"><div class="cal-day-num">22</div></div><div class="cal-day"><div class="cal-day-num">23</div></div><div class="cal-day"><div class="cal-day-num">24</div></div><div class="cal-day"><div class="cal-day-num">25</div></div><div class="cal-day"><div class="cal-day-num">26</div></div><div class="cal-day"><div class="cal-day-num">27</div></div><div class="cal-day"><div class="cal-day-num">28</div></div><div class="cal-day"><div class="cal-day-num">29</div></div><div class="cal-day"><div class="cal-day-num">30</div></div><div class="cal-day"><div class="cal-day-num">31</div></div>
           <div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">1</div></div><div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">2</div></div>
         </div>
+      </div>
+    </div>
+
+    <!-- SAÚDE & PERFORMANCE -->
+    <div id="page-saude-perf" class="page">
+      <div class="tabs" id="sp-tabs">
+        <div class="tab active" onclick="switchTab('sp','testes-geral',this)">🏋️ Testes Físicos</div>
+        <div class="tab" onclick="switchTab('sp','lesoes-geral',this)">🩺 Histórico de Lesões</div>
+      </div>
+      <div id="sp-testes-geral" class="sp-tab">
+        <div class="flex-between mb-4">
+          <select id="sp-cat-filter" onchange="renderSaudePerf()" style="width:180px"><option value="">Todas as categorias</option><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option></select>
+        </div>
+        <div class="card"><div class="table-wrap"><table><thead><tr><th>Atleta</th><th>Categoria</th><th>Último Teste</th><th>Vel 20m</th><th>VO2</th><th>Salto</th><th>Peso</th><th>Altura</th><th>Ações</th></tr></thead><tbody id="sp-testes-tbody"></tbody></table></div></div>
+      </div>
+      <div id="sp-lesoes-geral" class="sp-tab" style="display:none">
+        <div class="flex-between mb-4">
+          <select id="sp-lesoes-cat-filter" onchange="renderSaudePerf()" style="width:180px"><option value="">Todas as categorias</option><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option></select>
+          <button class="btn btn-primary" onclick="openModal('modal-lesao')">+ Registrar Lesão</button>
+        </div>
+        <div id="sp-lesoes-content"></div>
       </div>
     </div>
 
@@ -685,6 +707,10 @@ textarea{resize:vertical;min-height:80px}
 
 <div class="modal-overlay" id="modal-nota-rapida"><div class="modal" style="width:460px"><div class="modal-header"><div class="modal-title">Nova Anotação</div><button class="modal-close" onclick="closeModal('modal-nota-rapida')">✕</button></div><div class="form-group" style="margin-bottom:12px"><label>Categoria</label><select id="nr-cat"><option>🏃 Desempenho Técnico</option><option>💪 Físico</option><option>🧠 Comportamento</option><option>🩺 Saúde / Lesão</option></select></div><div class="form-group" style="margin-bottom:16px"><label>Anotação</label><textarea id="nr-obs" rows="4" placeholder="Observação..."></textarea></div><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveNotaProfile()">Salvar</button></div></div>
 
+<div class="modal-overlay" id="modal-lesao"><div class="modal"><div class="modal-header"><div class="modal-title">Registrar Lesão</div><button class="modal-close" onclick="closeModal('modal-lesao')">✕</button></div><div class="form-grid" style="margin-bottom:16px"><div class="form-group full"><label>Atleta</label><select id="les-atleta"><option value="">— Selecione —</option></select></div><div class="form-group"><label>Tipo de Lesão</label><select id="les-tipo"><option>Muscular</option><option>Ligamentar</option><option>Articular</option><option>Óssea (Fratura)</option><option>Contusão</option><option>Tendinite</option><option>Entorse</option><option>Outra</option></select></div><div class="form-group"><label>Data da Lesão</label><input type="date" id="les-data"></div><div class="form-group full"><label>Descrição</label><textarea id="les-desc" placeholder="Descreva a lesão, local afetado, circunstâncias..." rows="3"></textarea></div><div class="form-group"><label>Previsão de Retorno</label><input type="date" id="les-previsao"></div></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal('modal-lesao')">Cancelar</button><button class="btn btn-primary" onclick="saveLesao()">Registrar</button></div></div></div>
+
+<div class="modal-overlay" id="modal-edit-usuario"><div class="modal" style="width:420px"><div class="modal-header"><div class="modal-title">Editar Perfil de Usuário</div><button class="modal-close" onclick="closeModal('modal-edit-usuario')">✕</button></div><div style="margin-bottom:16px"><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:700;color:var(--gray-500)">Nome</label><p id="edit-u-nome" style="font-size:15px;font-weight:700;margin-top:4px"></p></div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:700;color:var(--gray-500)">Email</label><p id="edit-u-email" style="font-size:13px;color:var(--gray-500);margin-top:4px"></p></div><div class="form-group"><label>Nível de Acesso</label><select id="edit-u-nivel"><option value="admin">🛡️ Administrador — Acesso total</option><option value="administrativo">📋 Administrativo</option><option value="treinador">🏋️ Treinador</option></select></div></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal('modal-edit-usuario')">Cancelar</button><button class="btn btn-primary" id="btn-save-edit-user">Salvar</button></div></div></div>
+
 <!-- Firebase -->
 <script defer src="/__/firebase/10.8.0/firebase-app-compat.js"></script>
 <script defer src="/__/firebase/10.8.0/firebase-auth-compat.js"></script>
@@ -706,7 +732,7 @@ const movStatusColor = {Interesse:'interesse','Em Teste':'teste',Aprovado:'aprov
 const nivelLabels  = {admin:'🛡️ Administrador',administrativo:'📋 Administrativo',treinador:'🏋️ Treinador'};
 const nivelColors  = {admin:'badge-orange',administrativo:'badge-blue',treinador:'badge-green'};
 const accessMap    = {
-  admin:          ['Dashboard','Atletas','Comissão','Chamadas','Anotações','Calendário','Financeiro','Movimentações','Documentos','Configurações'],
+  admin:          ['Dashboard','Atletas','Comissão','Chamadas','Anotações','Calendário','Saúde & Performance','Financeiro','Movimentações','Documentos','Configurações'],
   administrativo: ['Dashboard','Atletas','Comissão','Calendário','Financeiro','Movimentações','Documentos'],
   treinador:      ['Dashboard','Atletas','Comissão','Chamadas','Anotações','Movimentações']
 };
@@ -718,6 +744,8 @@ let currentRole='admin', currentAtletaId=null, currentMembroId=null;
 const SESSION_KEY='plusdin_session';
 const SESSION_DAYS=7;
 const PRIVATE_NOTE_EMAILS=['michelle.oliveira@etus.com.br'];
+let lesoes=[];
+function canAccessSaudePerf(){if(currentRole==='admin')return true;const n=(loggedUser&&loggedUser.nome||'').toLowerCase();return n.includes('alarcon');}
 
 // ══════════════════════════════════════════════════════════
 // INIT
@@ -841,7 +869,7 @@ function fazerLogout(){
 // DATABASE LISTENERS
 // ══════════════════════════════════════════════════════════
 function setupDatabaseListeners(){
-  db.collection('atletas').onSnapshot(s=>{atletas=s.docs.map(d=>({id:d.id,...d.data()}));updateDashboardStats();renderAtletas();populateSelects();if(currentAtletaId){renderTestes();renderDocumentos();renderNotas();}});
+  db.collection('atletas').onSnapshot(s=>{atletas=s.docs.map(d=>({id:d.id,...d.data()}));updateDashboardStats();renderAtletas();populateSelects();renderSaudePerf();if(currentAtletaId){renderTestes();renderDocumentos();renderNotas();}});
   db.collection('comissao').onSnapshot(s=>{comissao=s.docs.map(d=>({id:d.id,...d.data()}));updateDashboardStats();renderComissao();});
   db.collection('movimentacoes').onSnapshot(s=>{movimentacoes=s.docs.map(d=>({id:d.id,...d.data()}));updateDashboardStats();renderMovimentacoes();});
   db.collection('usuarios').onSnapshot(s=>{usuarios=s.docs.map(d=>({id:d.id,...d.data()}));renderUsuarios();});
@@ -849,7 +877,8 @@ function setupDatabaseListeners(){
   db.collection('financeiro').onSnapshot(s=>{financeiroReqs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderFinanceiro();});
   db.collection('documentos').onSnapshot(s=>{documentos=s.docs.map(d=>({id:d.id,...d.data()}));renderDocumentos();});
   db.collection('anotacoes').onSnapshot(s=>{anotacoes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderNotas();});
-  db.collection('testes').onSnapshot(s=>{testes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderTestes();});
+  db.collection('testes').onSnapshot(s=>{testes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderTestes();renderSaudePerf();});
+  db.collection('lesoes').onSnapshot(s=>{lesoes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderSaudePerf();});
   db.collection('config').doc('frequencia').onSnapshot(s=>{if(s.exists){Object.assign(freqStates,s.data());}});
   db.collection('config').doc('financeiro').onSnapshot(s=>{if(s.exists){configFin=s.data();renderPix();}});
 }
@@ -876,16 +905,17 @@ function updateDashboardStats(){
 }
 function populateSelects(){
   const opts='<option value="">— Selecione o Atleta —</option>'+atletas.map(a=>`<option value="${a.id}">${a.nome} (${a.cat})</option>`).join('');
-  ['mov-atleta','upload-doc-atleta','nota-page-atleta'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+  ['mov-atleta','upload-doc-atleta','nota-page-atleta','les-atleta'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
 }
 function applyAccessControl(){
   const allowed=accessMap[currentRole]||[];
-  const pm={dashboard:'Dashboard',atletas:'Atletas',comissao:'Comissão',chamadas:'Chamadas',notas:'Anotações',calendario:'Calendário',financeiro:'Financeiro',movimentacoes:'Movimentações',documentos:'Documentos',configuracoes:'Configurações'};
+  const pm={dashboard:'Dashboard',atletas:'Atletas',comissao:'Comissão',chamadas:'Chamadas',notas:'Anotações',calendario:'Calendário','saude-perf':'Saúde & Performance',financeiro:'Financeiro',movimentacoes:'Movimentações',documentos:'Documentos',configuracoes:'Configurações'};
   document.querySelectorAll('.nav-item[data-page]').forEach(item=>{
     const label=pm[item.dataset.page]||'';
     item.classList.toggle('hidden',!allowed.some(a=>a.toLowerCase().includes(label.toLowerCase().split(' ')[0]))&&label!=='');
   });
   document.querySelectorAll('.personalizacao-tab').forEach(t=>t.style.display=currentRole==='admin'?'':'none');
+  const spNav=document.querySelector('[data-page="saude-perf"]');if(spNav)spNav.classList.toggle('hidden',!canAccessSaudePerf());
   const bm=document.getElementById('btn-nova-mov');if(bm)bm.style.display=(currentRole==='admin'||currentRole==='treinador')?'':'none';
 }
 function navigate(page,el){
@@ -893,9 +923,10 @@ function navigate(page,el){
   const t=document.getElementById('page-'+page);if(t)t.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');else{const n=document.querySelector(`[data-page="${page}"]`);if(n)n.classList.add('active');}
-  const titles={dashboard:'Dashboard',atletas:'Atletas',comissao:'Comissão Técnica',chamadas:'Chamadas da Semana',notas:'Anotações',calendario:'Calendário',financeiro:'Financeiro',movimentacoes:'Movimentações',documentos:'Documentos',configuracoes:'Configurações',perfil:'Perfil do Atleta','perfil-membro':'Perfil do Membro'};
+  const titles={dashboard:'Dashboard',atletas:'Atletas',comissao:'Comissão Técnica',chamadas:'Chamadas da Semana',notas:'Anotações',calendario:'Calendário','saude-perf':'Saúde & Performance',financeiro:'Financeiro',movimentacoes:'Movimentações',documentos:'Documentos',configuracoes:'Configurações',perfil:'Perfil do Atleta','perfil-membro':'Perfil do Membro'};
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='chamadas') initChamadas();
+  if(page==='saude-perf') renderSaudePerf();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1031,7 +1062,7 @@ function deleteMov(id){if(confirm('Apagar movimentação?'))db.collection('movim
 // ══════════════════════════════════════════════════════════
 function renderUsuarios(){
   const tbody=document.getElementById('usuarios-table');if(!tbody)return;
-  tbody.innerHTML=usuarios.map(u=>`<tr><td><strong>${u.nome}</strong></td><td style="font-size:13px;color:var(--gray-500)">${u.email}</td><td><span class="badge ${nivelColors[u.nivel]||'badge-gray'}">${nivelLabels[u.nivel]||u.nivel}</span></td><td><div style="display:flex;flex-wrap:wrap;gap:4px">${(accessMap[u.nivel]||[]).map(m=>'<span class="badge badge-gray" style="font-size:10px;padding:2px 6px">'+m+'</span>').join('')}</div></td><td><span class="badge badge-green">${u.status}</span></td><td>${u.email!=='felipe.moreira@etus.com.br'?`<button class="btn btn-danger btn-sm" onclick="deleteUsuario('${u.id}')">🗑️</button>`:'—'}</td></tr>`).join('');
+  tbody.innerHTML=usuarios.map(u=>`<tr><td><strong>${u.nome}</strong></td><td style="font-size:13px;color:var(--gray-500)">${u.email}</td><td><span class="badge ${nivelColors[u.nivel]||'badge-gray'}">${nivelLabels[u.nivel]||u.nivel}</span></td><td><div style="display:flex;flex-wrap:wrap;gap:4px">${(accessMap[u.nivel]||[]).map(m=>'<span class="badge badge-gray" style="font-size:10px;padding:2px 6px">'+m+'</span>').join('')}</div></td><td><span class="badge badge-green">${u.status}</span></td><td>${u.email!=='felipe.moreira@etus.com.br'?`<button class="btn btn-secondary btn-sm" onclick="editUsuarioNivel('${u.id}')">✏️</button><button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteUsuario('${u.id}')">🗑️</button>`:'—'}</td></tr>`).join('');
 }
 function saveUsuario(){
   if(currentRole!=='admin'){showToast('🔒','Acesso negado');return;}
@@ -1247,6 +1278,65 @@ td{padding:6px;border-bottom:1px solid #eee}.best{background:#e8f5e9;font-weight
   html+=`<div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} · Plusdin São Bernardo</div></body></html>`;
   const w=window.open('','_blank','width=900,height=700');w.document.write(html);w.document.close();
 }
+// ══════════════════════════════════════════════════════════
+// SAÚDE & PERFORMANCE
+// ══════════════════════════════════════════════════════════
+function renderSaudePerf(){
+  const tbody=document.getElementById('sp-testes-tbody');
+  if(tbody){
+    const cf=document.getElementById('sp-cat-filter')?.value||'';
+    const fl=atletas.filter(a=>a.status==='Ativo'&&(!cf||a.cat===cf)).sort((a,b)=>a.nome.localeCompare(b.nome));
+    if(!fl.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray-500);padding:20px">Nenhum atleta encontrado.</td></tr>';}
+    else{tbody.innerHTML=fl.map(a=>{const t=testes.filter(x=>x.atletaId===a.id);const last=t.length?t[0]:null;return`<tr><td><strong>${a.nome}</strong></td><td><span class="badge ${catColors[a.cat]||'badge-gray'}">${a.cat}</span></td><td>${last?new Date(last.data).toLocaleDateString('pt-BR',{timeZone:'UTC'}):'—'}</td><td>${last&&last.vel?last.vel+'s':'—'}</td><td>${last&&last.vo2?last.vo2:'—'}</td><td>${last&&last.salto?last.salto+'cm':'—'}</td><td>${last&&last.peso?last.peso:'—'}</td><td>${last&&last.altura?last.altura:'—'}</td><td><button class="btn btn-secondary btn-sm" onclick="openSpTeste('${a.id}')">+ Teste</button></td></tr>`;}).join('');}
+  }
+  const lcont=document.getElementById('sp-lesoes-content');
+  if(lcont){
+    const cf2=document.getElementById('sp-lesoes-cat-filter')?.value||'';
+    const fl2=lesoes.filter(l=>!cf2||l.cat===cf2);
+    if(!fl2.length){lcont.innerHTML='<p style="font-size:13px;color:var(--gray-500);padding:20px;text-align:center">Nenhuma lesão registrada.</p>';}
+    else{lcont.innerHTML=fl2.map(l=>`<div class="note-card"><div class="note-header"><div class="note-avatar" style="background:var(--red)">${l.atletaNome.substring(0,2).toUpperCase()}</div><div class="note-meta"><p><strong>${l.atletaNome}</strong> · <span class="badge ${catColors[l.cat]||'badge-gray'}" style="font-size:10px">${l.cat}</span></p><span>${new Date(l.data).toLocaleDateString('pt-BR')} · ${l.tipo}</span></div><span class="badge ${l.status==='Recuperado'?'badge-green':l.status==='Em tratamento'?'badge-yellow':'badge-red'}" style="margin-left:auto">${l.status}</span></div><p class="note-text">${l.descricao}</p>${l.previsao?'<p style="font-size:12px;color:var(--gray-500);margin-top:4px">📅 Previsão de retorno: '+l.previsao+'</p>':''}<div style="display:flex;gap:6px;margin-top:8px">${l.status!=='Recuperado'?`<button class="btn btn-success btn-sm" onclick="updateLesaoStatus('${l.id}','Recuperado')">✅ Recuperado</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteLesao('${l.id}')">🗑️</button></div></div>`).join('');}
+  }
+}
+function openSpTeste(atletaId){currentAtletaId=atletaId;openModal('modal-teste-fisico');}
+function saveLesao(){
+  const atletaId=document.getElementById('les-atleta').value;if(!atletaId)return showToast('⚠️','Selecione o atleta');
+  const a=atletas.find(x=>x.id===atletaId);const desc=document.getElementById('les-desc').value;if(!desc)return showToast('⚠️','Descreva a lesão');
+  db.collection('lesoes').add({atletaId,atletaNome:a.nome,cat:a.cat,tipo:document.getElementById('les-tipo').value,descricao:desc,data:document.getElementById('les-data').value||new Date().toISOString().split('T')[0],previsao:document.getElementById('les-previsao').value||'',status:'Em tratamento',registradoPor:document.getElementById('user-name-display').textContent}).then(()=>{closeModal('modal-lesao');showToast('✅','Lesão registrada!');document.getElementById('les-desc').value='';document.getElementById('les-previsao').value='';}).catch(e=>{console.error(e);showToast('❌','Erro ao salvar.');});
+}
+function updateLesaoStatus(id,status){db.collection('lesoes').doc(id).update({status}).then(()=>showToast('✅','Status atualizado!')).catch(e=>{console.error(e);showToast('❌','Erro ao atualizar.');});}
+function deleteLesao(id){if(confirm('Excluir registro de lesão?'))db.collection('lesoes').doc(id).delete().then(()=>showToast('🗑️','Removido!')).catch(e=>{console.error(e);showToast('❌','Erro ao remover.');});}
+
+// ══════════════════════════════════════════════════════════
+// EDITAR USUÁRIO
+// ══════════════════════════════════════════════════════════
+function editUsuarioNivel(id){
+  const u=usuarios.find(x=>x.id===id);if(!u)return;
+  if(currentRole!=='admin'){showToast('🔒','Acesso negado');return;}
+  document.getElementById('edit-u-nome').textContent=u.nome;
+  document.getElementById('edit-u-email').textContent=u.email;
+  document.getElementById('edit-u-nivel').value=u.nivel;
+  document.getElementById('btn-save-edit-user').onclick=()=>{const novoNivel=document.getElementById('edit-u-nivel').value;db.collection('usuarios').doc(id).update({nivel:novoNivel}).then(()=>{closeModal('modal-edit-usuario');showToast('✅','Perfil atualizado!');}).catch(e=>{console.error(e);showToast('❌','Erro ao atualizar.');});};
+  openModal('modal-edit-usuario');
+}
+
+// ══════════════════════════════════════════════════════════
+// RESUMO QUINZENAL
+// ══════════════════════════════════════════════════════════
+function gerarResumoQuinzenal(){
+  const hoje=new Date();const quinze=new Date(hoje.getTime()-15*24*60*60*1000);
+  const recentes=anotacoes.filter(n=>canSeeNote(n)&&new Date(n.data)>=quinze);
+  const porAtleta={};
+  recentes.forEach(n=>{if(!porAtleta[n.atletaNome])porAtleta[n.atletaNome]=[];porAtleta[n.atletaNome].push(n);});
+  const dtFmt=d=>new Date(d).toLocaleDateString('pt-BR');
+  let html=`<html><head><meta charset="utf-8"><title>Resumo Quinzenal</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;padding:30px;color:#1a1a2e;font-size:13px}h1{font-size:22px;margin-bottom:4px}h2{font-size:16px;margin:24px 0 10px;color:#e67e22;border-bottom:2px solid #e67e22;padding-bottom:4px}.sub{color:#888;font-size:13px;margin-bottom:20px}.nota{background:#f8f9fa;border-radius:8px;padding:12px 16px;margin-bottom:10px;border-left:3px solid #e67e22}.nota .meta{font-size:11px;color:#888;margin-bottom:4px}.nota .text{font-size:13px;color:#333}.footer{margin-top:30px;font-size:11px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:10px}@media print{body{padding:15px}button{display:none!important}}</style></head><body>`;
+  html+=`<h1>📋 Resumo Quinzenal de Anotações</h1><p class="sub">Plusdin São Bernardo · ${dtFmt(quinze)} a ${dtFmt(hoje)} · ${recentes.length} anotações</p>`;
+  html+=`<button onclick="window.print()" style="padding:8px 20px;background:#e67e22;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;margin-bottom:20px">🖨️ Imprimir / Salvar PDF</button>`;
+  if(!recentes.length){html+=`<p style="padding:30px;text-align:center;color:#888">Nenhuma anotação nos últimos 15 dias.</p>`;}
+  else{Object.keys(porAtleta).sort().forEach(nome=>{html+=`<h2>⚽ ${nome}</h2>`;porAtleta[nome].sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(n=>{html+=`<div class="nota"><div class="meta">${dtFmt(n.data)} · ${n.cat} · por ${n.autor}${n.privada?' 🔒':''}</div><div class="text">${n.obs}</div></div>`;});});}
+  html+=`<div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} · Plusdin São Bernardo</div></body></html>`;
+  const w=window.open('','_blank','width=900,height=700');w.document.write(html);w.document.close();
+}
+
 // Compatibilidade com navigate() antigo
 function renderFrequency(){initChamadas();}
 
