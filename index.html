@@ -531,20 +531,26 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
 
-    <!-- CALENDÁRIO -->
+    <!-- CALENDÁRIO GOOGLE -->
     <div id="page-calendario" class="page">
       <div class="flex-between mb-4">
-        <div style="display:flex;gap:10px;align-items:center"><button class="btn btn-secondary btn-sm">◄</button><h2 style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px">Mês Atual</h2><button class="btn btn-secondary btn-sm">►</button></div>
-        <button class="btn btn-primary" onclick="openModal('modal-evento')">+ Novo Evento</button>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px">Calendário</h2>
       </div>
-      <div class="card">
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
-          <div class="cal-day-label">Dom</div><div class="cal-day-label">Seg</div><div class="cal-day-label">Ter</div><div class="cal-day-label">Qua</div><div class="cal-day-label">Qui</div><div class="cal-day-label">Sex</div><div class="cal-day-label">Sáb</div>
-          <div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">29</div></div><div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">30</div></div>
-          <div class="cal-day"><div class="cal-day-num">1</div></div><div class="cal-day"><div class="cal-day-num">2</div></div><div class="cal-day"><div class="cal-day-num">3</div></div><div class="cal-day"><div class="cal-day-num">4</div></div><div class="cal-day"><div class="cal-day-num">5</div></div><div class="cal-day"><div class="cal-day-num">6</div></div><div class="cal-day"><div class="cal-day-num">7</div></div><div class="cal-day"><div class="cal-day-num">8</div></div><div class="cal-day"><div class="cal-day-num">9</div></div><div class="cal-day"><div class="cal-day-num">10</div></div><div class="cal-day"><div class="cal-day-num">11</div></div><div class="cal-day"><div class="cal-day-num">12</div></div><div class="cal-day"><div class="cal-day-num">13</div></div><div class="cal-day"><div class="cal-day-num">14</div></div>
-          <div class="cal-day today"><div class="cal-day-num">15</div></div>
-          <div class="cal-day"><div class="cal-day-num">16</div></div><div class="cal-day"><div class="cal-day-num">17</div></div><div class="cal-day"><div class="cal-day-num">18</div></div><div class="cal-day"><div class="cal-day-num">19</div></div><div class="cal-day"><div class="cal-day-num">20</div></div><div class="cal-day"><div class="cal-day-num">21</div></div><div class="cal-day"><div class="cal-day-num">22</div></div><div class="cal-day"><div class="cal-day-num">23</div></div><div class="cal-day"><div class="cal-day-num">24</div></div><div class="cal-day"><div class="cal-day-num">25</div></div><div class="cal-day"><div class="cal-day-num">26</div></div><div class="cal-day"><div class="cal-day-num">27</div></div><div class="cal-day"><div class="cal-day-num">28</div></div><div class="cal-day"><div class="cal-day-num">29</div></div><div class="cal-day"><div class="cal-day-num">30</div></div><div class="cal-day"><div class="cal-day-num">31</div></div>
-          <div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">1</div></div><div class="cal-day other-month"><div class="cal-day-num" style="color:var(--gray-300)">2</div></div>
+      <div id="gcal-container">
+        <div id="gcal-setup" class="card" style="padding:30px;text-align:center;display:none">
+          <p style="font-size:15px;font-weight:700;margin-bottom:12px">📅 Configurar Google Calendar</p>
+          <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Cole o ID do seu Google Calendar abaixo (ex: <code>abc123@group.calendar.google.com</code>)</p>
+          <div style="display:flex;gap:10px;max-width:600px;margin:0 auto">
+            <input type="text" id="gcal-id-input" placeholder="ID do Google Calendar" style="flex:1">
+            <button class="btn btn-primary" onclick="saveGCalId()">Salvar</button>
+          </div>
+          <p style="font-size:11px;color:var(--gray-400);margin-top:12px">No Google Calendar: Configurações do calendário → Integrar calendário → ID do calendário</p>
+        </div>
+        <div id="gcal-frame-wrap" style="display:none">
+          <iframe id="gcal-iframe" style="width:100%;height:600px;border:none;border-radius:12px;background:white" frameborder="0" scrolling="no"></iframe>
+          <div style="margin-top:10px;display:flex;justify-content:flex-end">
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('gcal-setup').style.display='block'">⚙️ Alterar Calendário</button>
+          </div>
         </div>
       </div>
     </div>
@@ -927,6 +933,7 @@ function navigate(page,el){
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='chamadas') initChamadas();
   if(page==='saude-perf') renderSaudePerf();
+  if(page==='calendario') initGCal();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1122,7 +1129,7 @@ function chOnMesChange(){chMonth=parseInt(document.getElementById('ch-sel-mes').
 function chRebuildWeeks(){
   chWeeks=[];const first=new Date(chYear,chMonth,1);const last=new Date(chYear,chMonth+1,0);
   let cursor=new Date(first);const dow=cursor.getDay();cursor.setDate(cursor.getDate()-(dow===0?6:dow-1));
-  while(cursor<=last){const week=[];for(let d=0;d<5;d++){const day=new Date(cursor);day.setDate(cursor.getDate()+d);week.push(day);}if(week.some(d=>d.getMonth()===chMonth))chWeeks.push(week);cursor.setDate(cursor.getDate()+7);}
+  while(cursor<=last){const week=[];for(let d=0;d<4;d++){const day=new Date(cursor);day.setDate(cursor.getDate()+d);week.push(day);}if(week.some(d=>d.getMonth()===chMonth))chWeeks.push(week);cursor.setDate(cursor.getDate()+7);}
 }
 function chJumpToCurrentWeek(){const today=new Date();if(today.getFullYear()===chYear&&today.getMonth()===chMonth){for(let i=0;i<chWeeks.length;i++){if(chWeeks[i].some(d=>d.toDateString()===today.toDateString())){chWeekIdx=i;return;}}}}
 function chChangeWeek(dir){chWeekIdx=Math.max(0,Math.min(chWeeks.length-1,chWeekIdx+dir));chRender();}
@@ -1141,7 +1148,7 @@ function chRenderNav(){
   const lb=document.getElementById('ch-week-label');const sb=document.getElementById('ch-week-sub');
   if(lb)lb.textContent=`Semana ${chWeekIdx+1} de ${chWeeks.length}`;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-  if(sb)sb.textContent=`${fmt(w[0])} a ${fmt(w[4])} · ${CH_MESES[chMonth]} ${chYear}`;
+  if(sb)sb.textContent=`${fmt(w[0])} a ${fmt(w[w.length-1])} · ${CH_MESES[chMonth]} ${chYear}`;
 }
 function chRenderPills(){
   const cont=document.getElementById('ch-week-pills');if(!cont)return;cont.innerHTML='';
@@ -1202,7 +1209,7 @@ function chRefreshRowSummary(atletaId){
   if(cells[0])cells[0].innerHTML=wH;if(cells[1])cells[1].innerHTML=mH;
 }
 function chGetAthletes(){return typeof atletas!=='undefined'?atletas.filter(a=>a.cat===chCat):[];}
-function chAllMonthDays(){const days=[];const d=new Date(chYear,chMonth,1);while(d.getMonth()===chMonth){const dw=d.getDay();if(dw>=1&&dw<=5)days.push(new Date(d));d.setDate(d.getDate()+1);}return days;}
+function chAllMonthDays(){const days=[];const d=new Date(chYear,chMonth,1);while(d.getMonth()===chMonth){const dw=d.getDay();if(dw>=1&&dw<=4)days.push(new Date(d));d.setDate(d.getDate()+1);}return days;}
 function chBuildSummaries(atletaId,week){
   const wDays=week.filter(d=>d.getMonth()===chMonth);
   const wP=wDays.filter(d=>chGet(atletaId,d)==='present').length;const wA=wDays.filter(d=>chGet(atletaId,d)==='absent').length;const wJ=wDays.filter(d=>chGet(atletaId,d)==='justified').length;const wR=wDays.filter(d=>chGet(atletaId,d)!=='none').length;const wF=wR>0?Math.round(((wP+wJ)/wR)*100):null;const wC=chFreqColor(wF);
@@ -1217,7 +1224,7 @@ function gerarRelatorioFrequencia(){
   const ano=parseInt(document.getElementById('ch-sel-ano').value);
   const mesNome=CH_MESES[mes];
   const cats=['Sub 11','Sub 13','Sub 15','Sub 17'];
-  function monthDays(y,m){const days=[];const d=new Date(y,m,1);while(d.getMonth()===m){const dw=d.getDay();if(dw>=1&&dw<=5)days.push(new Date(d));d.setDate(d.getDate()+1);}return days;}
+  function monthDays(y,m){const days=[];const d=new Date(y,m,1);while(d.getMonth()===m){const dw=d.getDay();if(dw>=1&&dw<=4)days.push(new Date(d));d.setDate(d.getDate()+1);}return days;}
   const mDays=monthDays(ano,mes);
   let html=`<html><head><meta charset="utf-8"><title>Relatório Frequência - ${mesNome} ${ano}</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;padding:30px;color:#1a1a2e;font-size:13px}
@@ -1335,6 +1342,26 @@ function gerarResumoQuinzenal(){
   else{Object.keys(porAtleta).sort().forEach(nome=>{html+=`<h2>⚽ ${nome}</h2>`;porAtleta[nome].sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(n=>{html+=`<div class="nota"><div class="meta">${dtFmt(n.data)} · ${n.cat} · por ${n.autor}${n.privada?' 🔒':''}</div><div class="text">${n.obs}</div></div>`;});});}
   html+=`<div class="footer">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} · Plusdin São Bernardo</div></body></html>`;
   const w=window.open('','_blank','width=900,height=700');w.document.write(html);w.document.close();
+}
+
+// ══════════════════════════════════════════════════════════
+// GOOGLE CALENDAR
+// ══════════════════════════════════════════════════════════
+function initGCal(){
+  const saved=localStorage.getItem('plusdin_gcal_id')||'';
+  if(saved){loadGCal(saved);document.getElementById('gcal-id-input').value=saved;}
+  else{document.getElementById('gcal-setup').style.display='block';}
+}
+function saveGCalId(){
+  const id=document.getElementById('gcal-id-input').value.trim();if(!id){showToast('⚠️','Cole o ID do calendário');return;}
+  localStorage.setItem('plusdin_gcal_id',id);loadGCal(id);showToast('✅','Calendário configurado!');
+  document.getElementById('gcal-setup').style.display='none';
+}
+function loadGCal(calId){
+  const iframe=document.getElementById('gcal-iframe');if(!iframe)return;
+  const src=calId.startsWith('http')?calId:`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(calId)}&ctz=America/Sao_Paulo&wkst=2&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0`;
+  iframe.src=src;
+  document.getElementById('gcal-frame-wrap').style.display='block';
 }
 
 // Compatibilidade com navigate() antigo
