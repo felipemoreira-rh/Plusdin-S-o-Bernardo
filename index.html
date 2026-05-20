@@ -196,10 +196,15 @@ textarea{resize:vertical;min-height:80px}
 .modal-close:hover{color:var(--gray-700);background:var(--gray-100)}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--gray-900);color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:500;display:none;align-items:center;gap:10px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .toast.show{display:flex}
-.cal-day-label{text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:8px 4px}
-.cal-day{min-height:80px;background:white;border:1px solid var(--gray-100);border-radius:6px;padding:6px;cursor:pointer;transition:all .1s}
-.cal-day:hover{border-color:var(--orange)}.cal-day.today{border-color:var(--orange);background:var(--orange-light)}.cal-day.other-month{background:var(--gray-50)}
-.cal-day-num{font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:4px}.cal-day.today .cal-day-num{color:var(--orange)}
+.cal-hd{text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:10px 4px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.cal-cell{min-height:90px;background:white;border:1px solid var(--gray-100);padding:6px;cursor:pointer;transition:all .15s;position:relative}
+.cal-cell:hover{background:var(--orange-light);border-color:var(--orange)}
+.cal-cell.today{border-color:var(--orange);background:var(--orange-light)}
+.cal-cell.other{background:var(--gray-50);opacity:.5}
+.cal-cell .day-num{font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:4px;display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%}
+.cal-cell.today .day-num{background:var(--orange);color:white}
+.cal-evt{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:white;font-weight:600}
+.cal-evt.tipo-jogo{background:var(--orange)}.cal-evt.tipo-treino{background:var(--blue)}.cal-evt.tipo-teste{background:var(--green)}.cal-evt.tipo-reuniao{background:var(--purple)}.cal-evt.tipo-outro{background:var(--gray-500)}
 .cal-event{font-size:10px;font-weight:600;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-event.jogo{background:#FED7AA;color:#9A3412}.cal-event.treino{background:#BBF7D0;color:#14532D}.cal-event.teste{background:#BFDBFE;color:#1E3A8A}
 
@@ -531,26 +536,30 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
 
-    <!-- CALENDÁRIO GOOGLE -->
+    <!-- CALENDÁRIO -->
     <div id="page-calendario" class="page">
       <div class="flex-between mb-4">
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px">Calendário</h2>
-      </div>
-      <div id="gcal-container">
-        <div id="gcal-setup" class="card" style="padding:30px;text-align:center;display:none">
-          <p style="font-size:15px;font-weight:700;margin-bottom:12px">📅 Configurar Google Calendar</p>
-          <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Cole o ID do seu Google Calendar abaixo (ex: <code>abc123@group.calendar.google.com</code>)</p>
-          <div style="display:flex;gap:10px;max-width:600px;margin:0 auto">
-            <input type="text" id="gcal-id-input" placeholder="ID do Google Calendar" style="flex:1">
-            <button class="btn btn-primary" onclick="saveGCalId()">Salvar</button>
-          </div>
-          <p style="font-size:11px;color:var(--gray-400);margin-top:12px">No Google Calendar: Configurações do calendário → Integrar calendário → ID do calendário</p>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="calChangeMonth(-1)">◄</button>
+          <h2 id="cal-title" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px"></h2>
+          <button class="btn btn-secondary btn-sm" onclick="calChangeMonth(1)">►</button>
+          <button class="btn btn-secondary btn-sm" onclick="calGoToday()" style="margin-left:6px;font-size:12px">Hoje</button>
         </div>
-        <div id="gcal-frame-wrap" style="display:none">
-          <iframe id="gcal-iframe" style="width:100%;height:600px;border:none;border-radius:12px;background:white" frameborder="0" scrolling="no"></iframe>
-          <div style="margin-top:10px;display:flex;justify-content:flex-end">
-            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('gcal-setup').style.display='block'">⚙️ Alterar Calendário</button>
+        <button class="btn btn-primary" onclick="openCalEventModal()">+ Novo Evento</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;border-radius:12px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr)">
+          <div class="cal-hd">Dom</div><div class="cal-hd">Seg</div><div class="cal-hd">Ter</div><div class="cal-hd">Qua</div><div class="cal-hd">Qui</div><div class="cal-hd">Sex</div><div class="cal-hd">Sáb</div>
+        </div>
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+      </div>
+      <div id="cal-day-detail" style="display:none;margin-top:16px">
+        <div class="card">
+          <div class="flex-between" style="margin-bottom:12px">
+            <h3 id="cal-detail-title" style="font-size:15px;font-weight:700"></h3>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cal-day-detail').style.display='none'">✕</button>
           </div>
+          <div id="cal-detail-events"></div>
         </div>
       </div>
     </div>
@@ -709,7 +718,7 @@ textarea{resize:vertical;min-height:80px}
 
 <div class="modal-overlay" id="modal-upload-comp"><div class="modal" style="width:420px"><div class="modal-header"><div class="modal-title">Comprovante de Pagamento</div><button class="modal-close" onclick="closeModal('modal-upload-comp')">✕</button></div><div class="form-group" style="margin-bottom:16px"><label>Comprovante</label><input type="file" id="comp-input" style="display:none" onchange="updateUploadText(this,'txt-comp')"><div class="upload-zone" onclick="document.getElementById('comp-input').click()"><div class="upload-icon">🧾</div><div class="upload-text" id="txt-comp">Clique para anexar</div><div class="upload-sub">PDF, JPG, PNG até 5MB</div></div></div><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeModal('modal-upload-comp');showToast('✅','Comprovante enviado!')">Enviar</button></div></div>
 
-<div class="modal-overlay" id="modal-evento"><div class="modal"><div class="modal-header"><div class="modal-title">Novo Evento</div><button class="modal-close" onclick="closeModal('modal-evento')">✕</button></div><div class="form-grid" style="margin-bottom:16px"><div class="form-group full"><label>Título</label><input type="text" placeholder="Ex: Jogo Sub 13 vs Jabaquara"></div><div class="form-group"><label>Tipo</label><select><option>🏆 Jogo</option><option>🏋️ Treino</option><option>🔍 Teste</option><option>📋 Reunião</option></select></div><div class="form-group"><label>Categoria</label><select><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option><option>Todas</option></select></div><div class="form-group"><label>Data</label><input type="date"></div><div class="form-group"><label>Horário</label><input type="time" value="15:00"></div><div class="form-group full"><label>Local</label><input type="text" placeholder="CT Plusdin / Campo Auxiliar..."></div><div class="form-group full"><label>Observações</label><textarea placeholder="Informações adicionais..."></textarea></div></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal('modal-evento')">Cancelar</button><button class="btn btn-primary" onclick="closeModal('modal-evento');showToast('📅','Evento adicionado!')">Salvar</button></div></div></div>
+<div class="modal-overlay" id="modal-evento"><div class="modal"><div class="modal-header"><div class="modal-title" id="modal-evento-title">Novo Evento</div><button class="modal-close" onclick="closeModal('modal-evento')">✕</button></div><div class="form-grid" style="margin-bottom:16px"><div class="form-group full"><label>Título</label><input type="text" id="ev-titulo" placeholder="Ex: Jogo Sub 13 vs Jabaquara"></div><div class="form-group"><label>Tipo</label><select id="ev-tipo"><option value="Jogo">🏆 Jogo</option><option value="Treino">🏋️ Treino</option><option value="Teste">🔍 Teste</option><option value="Reunião">📋 Reunião</option><option value="Outro">📌 Outro</option></select></div><div class="form-group"><label>Categoria</label><select id="ev-cat"><option>Sub 11</option><option>Sub 13</option><option>Sub 15</option><option>Sub 17</option><option>Todas</option></select></div><div class="form-group"><label>Data</label><input type="date" id="ev-data"></div><div class="form-group"><label>Horário</label><input type="time" id="ev-hora" value="15:00"></div><div class="form-group full"><label>Local</label><input type="text" id="ev-local" placeholder="CT Plusdin / Campo Auxiliar..."></div><div class="form-group full"><label>Observações</label><textarea id="ev-obs" placeholder="Informações adicionais..."></textarea></div></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal('modal-evento')">Cancelar</button><button class="btn btn-primary" onclick="saveCalEvento()">Salvar</button></div></div></div>
 
 <div class="modal-overlay" id="modal-nota-rapida"><div class="modal" style="width:460px"><div class="modal-header"><div class="modal-title">Nova Anotação</div><button class="modal-close" onclick="closeModal('modal-nota-rapida')">✕</button></div><div class="form-group" style="margin-bottom:12px"><label>Categoria</label><select id="nr-cat"><option>🏃 Desempenho Técnico</option><option>💪 Físico</option><option>🧠 Comportamento</option><option>🩺 Saúde / Lesão</option></select></div><div class="form-group" style="margin-bottom:16px"><label>Anotação</label><textarea id="nr-obs" rows="4" placeholder="Observação..."></textarea></div><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveNotaProfile()">Salvar</button></div></div>
 
@@ -750,7 +759,7 @@ let currentRole='admin', currentAtletaId=null, currentMembroId=null;
 const SESSION_KEY='plusdin_session';
 const SESSION_DAYS=7;
 const PRIVATE_NOTE_EMAILS=['michelle.oliveira@etus.com.br'];
-let lesoes=[];
+let lesoes=[],eventos=[];
 function canAccessSaudePerf(){if(currentRole==='admin')return true;const n=(loggedUser&&loggedUser.nome||'').toLowerCase();return n.includes('alarcon');}
 
 // ══════════════════════════════════════════════════════════
@@ -885,6 +894,7 @@ function setupDatabaseListeners(){
   db.collection('anotacoes').onSnapshot(s=>{anotacoes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderNotas();});
   db.collection('testes').onSnapshot(s=>{testes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderTestes();renderSaudePerf();});
   db.collection('lesoes').onSnapshot(s=>{lesoes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.data)-new Date(a.data));renderSaudePerf();});
+  db.collection('eventos').onSnapshot(s=>{eventos=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(a.data)-new Date(b.data));renderCalendario();});
   db.collection('config').doc('frequencia').onSnapshot(s=>{if(s.exists){Object.assign(freqStates,s.data());}});
   db.collection('config').doc('financeiro').onSnapshot(s=>{if(s.exists){configFin=s.data();renderPix();}});
 }
@@ -933,7 +943,7 @@ function navigate(page,el){
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='chamadas') initChamadas();
   if(page==='saude-perf') renderSaudePerf();
-  if(page==='calendario') initGCal();
+  if(page==='calendario') initCalendario();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1345,24 +1355,83 @@ function gerarResumoQuinzenal(){
 }
 
 // ══════════════════════════════════════════════════════════
-// GOOGLE CALENDAR
+// CALENDÁRIO INTEGRADO
 // ══════════════════════════════════════════════════════════
-function initGCal(){
-  const saved=localStorage.getItem('plusdin_gcal_id')||'';
-  if(saved){loadGCal(saved);document.getElementById('gcal-id-input').value=saved;}
-  else{document.getElementById('gcal-setup').style.display='block';}
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+const CAL_MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const CAL_TIPO_CSS={Jogo:'tipo-jogo',Treino:'tipo-treino',Teste:'tipo-teste','Reunião':'tipo-reuniao',Outro:'tipo-outro'};
+const CAL_TIPO_ICON={Jogo:'🏆',Treino:'🏋️',Teste:'🔍','Reunião':'📋',Outro:'📌'};
+
+function initCalendario(){renderCalendario();}
+function calChangeMonth(dir){calMonth+=dir;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}renderCalendario();}
+function calGoToday(){calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendario();}
+
+function renderCalendario(){
+  const title=document.getElementById('cal-title');if(!title)return;
+  title.textContent=`${CAL_MESES[calMonth]} ${calYear}`;
+  const grid=document.getElementById('cal-grid');if(!grid)return;
+  const first=new Date(calYear,calMonth,1);const last=new Date(calYear,calMonth+1,0);
+  const startDow=first.getDay();const totalDays=last.getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  let html='';
+  for(let i=0;i<startDow;i++){const d=new Date(calYear,calMonth,1-startDow+i);html+=calCellHTML(d,true,today);}
+  for(let d=1;d<=totalDays;d++){html+=calCellHTML(new Date(calYear,calMonth,d),false,today);}
+  const totalCells=startDow+totalDays;const remaining=(7-totalCells%7)%7;
+  for(let i=1;i<=remaining;i++){html+=calCellHTML(new Date(calYear,calMonth+1,i),true,today);}
+  grid.innerHTML=html;
 }
-function saveGCalId(){
-  const id=document.getElementById('gcal-id-input').value.trim();if(!id){showToast('⚠️','Cole o ID do calendário');return;}
-  localStorage.setItem('plusdin_gcal_id',id);loadGCal(id);showToast('✅','Calendário configurado!');
-  document.getElementById('gcal-setup').style.display='none';
+function calCellHTML(date,isOther,today){
+  const dk=date.toISOString().split('T')[0];
+  const isToday=date.getTime()===today.getTime();
+  const dayEvts=eventos.filter(e=>e.data===dk);
+  let evtsHtml=dayEvts.slice(0,3).map(e=>`<div class="cal-evt ${CAL_TIPO_CSS[e.tipo]||'tipo-outro'}" title="${e.titulo}">${e.titulo}</div>`).join('');
+  if(dayEvts.length>3)evtsHtml+=`<div style="font-size:10px;color:var(--gray-500);padding-left:4px">+${dayEvts.length-3} mais</div>`;
+  return`<div class="cal-cell${isToday?' today':''}${isOther?' other':''}" onclick="calShowDay('${dk}')"><span class="day-num">${date.getDate()}</span>${evtsHtml}</div>`;
 }
-function loadGCal(calId){
-  const iframe=document.getElementById('gcal-iframe');if(!iframe)return;
-  const src=calId.startsWith('http')?calId:`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(calId)}&ctz=America/Sao_Paulo&wkst=2&bgcolor=%23ffffff&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0`;
-  iframe.src=src;
-  document.getElementById('gcal-frame-wrap').style.display='block';
+function calShowDay(dk){
+  const detail=document.getElementById('cal-day-detail');if(!detail)return;
+  const d=new Date(dk+'T12:00:00');
+  document.getElementById('cal-detail-title').textContent=`${d.getDate()} de ${CAL_MESES[d.getMonth()]} de ${d.getFullYear()}`;
+  const dayEvts=eventos.filter(e=>e.data===dk);
+  const cont=document.getElementById('cal-detail-events');
+  if(!dayEvts.length){cont.innerHTML='<p style="color:var(--gray-400);font-size:13px;padding:12px 0">Nenhum evento neste dia.</p>';detail.style.display='block';return;}
+  cont.innerHTML=dayEvts.map(e=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--gray-50);border-radius:10px;margin-bottom:8px"><div style="font-size:24px">${CAL_TIPO_ICON[e.tipo]||'📌'}</div><div style="flex:1"><div style="font-weight:700;font-size:14px;margin-bottom:2px">${e.titulo}</div><div style="font-size:12px;color:var(--gray-500)">${e.hora||''} · ${e.cat||''} · ${e.local||''}</div>${e.obs?`<div style="font-size:12px;color:var(--gray-500);margin-top:4px">${e.obs}</div>`:''}</div><div style="display:flex;gap:4px"><button class="btn btn-secondary btn-sm" onclick="editCalEvento('${e.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteCalEvento('${e.id}')">🗑️</button></div></div>`).join('');
+  detail.style.display='block';
 }
+function openCalEventModal(dateStr){
+  document.getElementById('modal-evento-title').textContent='Novo Evento';
+  document.getElementById('ev-titulo').value='';
+  document.getElementById('ev-tipo').value='Jogo';
+  document.getElementById('ev-cat').value='Sub 13';
+  document.getElementById('ev-data').value=dateStr||new Date().toISOString().split('T')[0];
+  document.getElementById('ev-hora').value='15:00';
+  document.getElementById('ev-local').value='';
+  document.getElementById('ev-obs').value='';
+  document.getElementById('modal-evento').dataset.editId='';
+  openModal('modal-evento');
+}
+function editCalEvento(id){
+  const e=eventos.find(x=>x.id===id);if(!e)return;
+  document.getElementById('modal-evento-title').textContent='Editar Evento';
+  document.getElementById('ev-titulo').value=e.titulo||'';
+  document.getElementById('ev-tipo').value=e.tipo||'Jogo';
+  document.getElementById('ev-cat').value=e.cat||'Sub 13';
+  document.getElementById('ev-data').value=e.data||'';
+  document.getElementById('ev-hora').value=e.hora||'15:00';
+  document.getElementById('ev-local').value=e.local||'';
+  document.getElementById('ev-obs').value=e.obs||'';
+  document.getElementById('modal-evento').dataset.editId=id;
+  openModal('modal-evento');
+}
+function saveCalEvento(){
+  const titulo=document.getElementById('ev-titulo').value.trim();if(!titulo)return showToast('⚠️','Informe o título');
+  const data=document.getElementById('ev-data').value;if(!data)return showToast('⚠️','Informe a data');
+  const obj={titulo,tipo:document.getElementById('ev-tipo').value,cat:document.getElementById('ev-cat').value,data,hora:document.getElementById('ev-hora').value,local:document.getElementById('ev-local').value.trim(),obs:document.getElementById('ev-obs').value.trim(),criadoPor:document.getElementById('user-name-display').textContent};
+  const editId=document.getElementById('modal-evento').dataset.editId;
+  const op=editId?db.collection('eventos').doc(editId).update(obj):db.collection('eventos').add(obj);
+  op.then(()=>{closeModal('modal-evento');showToast('📅',editId?'Evento atualizado!':'Evento criado!');}).catch(e=>{console.error(e);showToast('❌','Erro ao salvar evento.');});
+}
+function deleteCalEvento(id){if(!confirm('Excluir este evento?'))return;db.collection('eventos').doc(id).delete().then(()=>showToast('🗑️','Evento excluído!')).catch(e=>{console.error(e);showToast('❌','Erro ao excluir.');});}
 
 // Compatibilidade com navigate() antigo
 function renderFrequency(){initChamadas();}
